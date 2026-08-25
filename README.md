@@ -1,45 +1,33 @@
-# htl-core
+# htl-core — Humanity Trust Layer
 
-Humanity Trust Layer — proof-of-humanity API for AI infrastructure.
-Zero KYC, zero PII. The X-Trust header standard.
+**Le standard X-Trust pour l'infrastructure IA.** Preuve d'humanité sans KYC, sans PII, en un header HTTP.
+
+## Le problème qu'on résout
+
+Agrégateurs LLM, wrappers, agents autonomes : le trafic bot déguisé en humain = fraude, abus, metrics faussées. Le KYC tue la conversion. HTL prouve l'humanité **avant** la requête LLM — zéro KYC, zéro donnée personnelle.
+
+## L'AIR, pas le mur
+
+Le X-Trust voyage comme un header invisible. On annote sans bloquer. **3 lignes pour le dev. 0,005 € / vérification.**
 
 ## Intégration en 3 lignes
 
 ```ts
 import { trustFetch } from 'htl-core';
 
-const res = await trustFetch('https://your-llm-gateway/v1/chat', {
+const res = await trustFetch('https://votre-gateway-llm/v1/chat', {
   trust: { sub: 'user-42', signals: { keystroke: 'p91', pointer: 'arc' } },
 });
-// Header injecté automatiquement : X-Trust: v1.<payload>.<signature>
 ```
 
-Côté serveur (Express) : annoter sans bloquer (l'AIR, pas le mur).
+## Middleware (Express-compatible)
 
 ```ts
 import { trustMiddleware, requireTrust } from 'htl-core';
 
-app.use(trustMiddleware());                  // annote req.trust, ne bloque JAMAIS
-app.post('/v1/chat', requireTrust(0.5), h);  // guard optionnel (seuil de score)
+app.use(trustMiddleware());                 // annote, ne bloque jamais
+app.post('/v1/chat', requireTrust(0.5), h); // guard optionnel
 ```
 
-## Env vars
+## Endpoint de vérification public (LIVE v0.1)
 
-| Variable | Rôle |
-|---|---|
-| `HTL_SECRET` | Secret HMAC-SHA256 (signature + vérification). Jamais en dur. Voir `.env.example`. |
-
-## Format du header X-Trust
-
-`v1.<base64url(payloadJSON)>.<base64url(HMAC-SHA256)>`
-Payload : `sub`, `score` (biométrie comportementale 0..1, locale, déterministe), `iat`, `exp`.
-
-## Dev local
-
-```bash
-npm install
-npm test
-npm run build
-```
-
-MIT
