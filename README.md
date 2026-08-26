@@ -31,3 +31,9 @@ app.post('/v1/chat', requireTrust(0.5), h); // guard optionnel
 
 ## Endpoint de vérification public (LIVE v0.1)
 
+
+## Compteur live du standard
+
+Vérifications enregistrées en temps réel : `https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter`
+
+Chaque appel vérifié par le endpoint X-Trust incrémente ce compteur. La preuve que le standard tourne, sous vos yeux.
