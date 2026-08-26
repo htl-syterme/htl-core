@@ -13,7 +13,7 @@ Le X-Trust voyage comme un header invisible. On annote sans bloquer. **3 lignes 
 ## Intégration en 3 lignes
 
 ```ts
-import { trustFetch } from 'htl-core';
+import { trustFetch } from '@htl-syterme/htl-core';
 
 const res = await trustFetch('https://votre-gateway-llm/v1/chat', {
   trust: { sub: 'user-42', signals: { keystroke: 'p91', pointer: 'arc' } },
@@ -23,7 +23,7 @@ const res = await trustFetch('https://votre-gateway-llm/v1/chat', {
 ## Middleware (Express-compatible)
 
 ```ts
-import { trustMiddleware, requireTrust } from 'htl-core';
+import { trustMiddleware, requireTrust } from '@htl-syterme/htl-core';
 
 app.use(trustMiddleware());                 // annote, ne bloque jamais
 app.post('/v1/chat', requireTrust(0.5), h); // guard optionnel

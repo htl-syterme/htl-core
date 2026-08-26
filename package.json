@@ -1,5 +1,5 @@
 {
-  "name": "htl-core",
+  "name": "@htl-syterme/htl-core",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/src/index.js",
