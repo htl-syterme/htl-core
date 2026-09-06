@@ -1,0 +1,82 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>X-Trust Live — Human Traffic Counter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e7ecf3;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:2rem}
+h1{font-size:1rem;letter-spacing:.15em;text-transform:uppercase;color:#7e8899}
+#counter{font-size:6rem;font-weight:700;letter-spacing:-.02em;color:#3ecf8e;line-height:1;font-variant-numeric:tabular-nums}
+#rate{font-size:.9rem;color:#7e8899;min-height:1.2em}
+svg#spark{width:260px;height:50px;overflow:visible}
+#spark path{fill:none;stroke:#3ecf8e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#spark polygon{fill:rgba(62,207,142,.12)}
+#status{font-size:.75rem;color:#4d5666;letter-spacing:.05em}
+.pill{background:#10141c;border:1px solid rgba(148,163,184,.13);border-radius:8px;padding:.5rem 1.2rem;font-size:.8rem;color:#7e8899}
+</style></head><body>
+<h1>X-Trust Live · Human Traffic Counter</h1>
+<div id="counter">—</div>
+<div id="rate"></div>
+<svg id="spark" viewBox="0 0 260 50"><polygon id="area"/><path id="line"/></svg>
+<div class="pill">Verifications processed by HTL infrastructure</div>
+<div id="status">connecting…</div>
+
+<script>
+const EP='https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter';
+const MAX=20;
+let hist=[],displayed=0,raf=null;
+
+function fmt(n){return n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n)}
+
+function animateTo(target){
+  if(raf)cancelAnimationFrame(raf);
+  const start=displayed,t0=performance.now(),dur=600;
+  function step(t){
+    const p=Math.min((t-t0)/dur,1),v=Math.round(start+(target-start)*p);
+    document.getElementById('counter').textContent=fmt(v);
+    displayed=v;
+    if(p<1)raf=requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function drawSpark(){
+  if(hist.length<2)return;
+  const vs=hist.map(h=>h.v),mn=Math.min(...vs),mx=Math.max(...vs),range=mx-mn||1;
+  const pts=hist.map((h,i)=>{
+    const x=i/(hist.length-1)*260,y=50-(h.v-mn)/range*40-5;
+    return[x,y];
+  });
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
+  const poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')
+    +' 260,55 0,55';
+  document.getElementById('line').setAttribute('d',d);
+  document.getElementById('area').setAttribute('points',poly);
+}
+
+function updateRate(){
+  if(hist.length<2)return;
+  const first=hist[0],last=hist[hist.length-1];
+  const dt=(last.t-first.t)/60000;
+  if(dt<.01)return;
+  const r=((last.v-first.v)/dt).toFixed(1);
+  document.getElementById('rate').textContent=r>0?'+ '+r+' verifs / min':'Watching for new verifications…';
+}
+
+async function poll(){
+  try{
+    const r=await fetch(EP,{cache:'no-store'});
+    const d=await r.json();
+    const v=d.total_verifs??0;
+    hist.push({t:Date.now(),v});
+    if(hist.length>MAX)hist.shift();
+    animateTo(v);
+    drawSpark();
+    updateRate();
+    document.getElementById('status').textContent='Last update: '+new Date().toLocaleTimeString();
+  }catch(e){
+    document.getElementById('status').textContent='Signal lost — retrying…';
+  }
+}
+
+poll();setInterval(poll,30000);
+</script></body></html>
