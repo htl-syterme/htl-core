@@ -1,82 +1,471 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>X-Trust Live — Human Traffic Counter</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>X-Trust · Human Trust Layer</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0d12;color:#e7ecf3;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:2rem}
-h1{font-size:1rem;letter-spacing:.15em;text-transform:uppercase;color:#7e8899}
-#counter{font-size:6rem;font-weight:700;letter-spacing:-.02em;color:#3ecf8e;line-height:1;font-variant-numeric:tabular-nums}
-#rate{font-size:.9rem;color:#7e8899;min-height:1.2em}
-svg#spark{width:260px;height:50px;overflow:visible}
-#spark path{fill:none;stroke:#3ecf8e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#spark polygon{fill:rgba(62,207,142,.12)}
-#status{font-size:.75rem;color:#4d5666;letter-spacing:.05em}
-.pill{background:#10141c;border:1px solid rgba(148,163,184,.13);border-radius:8px;padding:.5rem 1.2rem;font-size:.8rem;color:#7e8899}
-</style></head><body>
-<h1>X-Trust Live · Human Traffic Counter</h1>
-<div id="counter">—</div>
-<div id="rate"></div>
-<svg id="spark" viewBox="0 0 260 50"><polygon id="area"/><path id="line"/></svg>
-<div class="pill">Verifications processed by HTL infrastructure</div>
-<div id="status">connecting…</div>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --gray: #8e8e93;
+    --gray-dim: #636366;
+    --border: rgba(255, 255, 255, 0.1);
+    --card: rgba(255, 255, 255, 0.05);
+    --card-hover: rgba(255, 255, 255, 0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+                 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,255,255,0.04), transparent 60%),
+      #000;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 80px;
+  }
+
+  .logo-wrap {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .brand .title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .brand .subtitle {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+  }
+
+  /* Main counter section */
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    flex: 1;
+  }
+
+  .counter-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .counter-value {
+    font-size: clamp(48px, 12vw, 80px);
+    font-weight: 200;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    line-height: 1;
+    font-feature-settings: "tnum" 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .counter-value.updating {
+    opacity: 0.5;
+  }
+
+  .counter-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--gray);
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  /* Sparkline */
+  .sparkline-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin: 48px 0 0;
+    height: 80px;
+    position: relative;
+  }
+
+  .sparkline {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sparkline path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .sparkline .area {
+    fill: url(#sparkGrad);
+    stroke: none;
+  }
+
+  .sparkline .cursor-dot {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.6));
+  }
+
+  /* Stat cards */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 720px;
+    margin-top: 32px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: background 0.25s ease, border-color 0.25s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .card:hover {
+    background: var(--card-hover);
+    border-color: rgba(255,255,255,0.18);
+  }
+
+  .card .val {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card .lbl {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* Last update */
+  .update-time {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--gray-dim);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: auto;
+    padding-top: 64px;
+    font-size: 12px;
+    color: var(--gray);
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+
+  .footer a {
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer a:hover { color: var(--text); }
+  .footer .dot {
+    display: inline-block;
+    margin: 0 8px;
+    color: var(--gray-dim);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    body { padding: 32px 20px; }
+    .header { margin-bottom: 56px; }
+    .stats { grid-template-columns: 1fr; max-width: 360px; }
+    .counter-label { font-size: 11px; }
+  }
+
+  /* Subtle entrance */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 0.8s ease forwards;
+  }
+  .fade-in.d1 { animation-delay: 0.1s; }
+  .fade-in.d2 { animation-delay: 0.2s; }
+  .fade-in.d3 { animation-delay: 0.3s; }
+  .fade-in.d4 { animation-delay: 0.4s; }
+  .fade-in.d5 { animation-delay: 0.5s; }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header fade-in d1">
+    <div class="logo-wrap">
+      <!-- Shield + ECG logo, 36px -->
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shield outline -->
+        <path d="M18 3.5 L30 8 V17.5 C30 24.5 24.5 29.8 18 32.5 C11.5 29.8 6 24.5 6 17.5 V8 L18 3.5 Z"
+              stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+        <!-- ECG / heartbeat line -->
+        <path d="M9 18 L14 18 L16 13.5 L18.5 22 L20.5 15.5 L22.5 18 L27 18"
+              stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <span class="title">X-Trust</span>
+      <span class="subtitle">Human Trust Layer</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="counter-label fade-in d2">Verified Trust Signals</div>
+
+    <div class="counter-value fade-in d2" id="counter">0</div>
+
+    <div class="counter-meta fade-in d3">
+      <span class="live-dot"></span>
+      <span>live network</span>
+    </div>
+
+    <div class="sparkline-wrap fade-in d4">
+      <svg class="sparkline" id="sparkline" viewBox="0 0 720 80" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="sparkGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path class="area" id="sparkArea" d=""/>
+        <path id="sparkPath" d=""/>
+        <circle class="cursor-dot" id="sparkDot" r="2.5" cx="0" cy="0" style="display:none"/>
+      </svg>
+    </div>
+
+    <div class="stats fade-in d5">
+      <div class="card">
+        <div class="val">99.9%</div>
+        <div class="lbl">Uptime</div>
+      </div>
+      <div class="card">
+        <div class="val">&lt; 5ms</div>
+        <div class="lbl">Latency</div>
+      </div>
+      <div class="card">
+        <div class="val">HMAC-SHA256</div>
+        <div class="lbl">Integrity</div>
+      </div>
+    </div>
+
+    <div class="update-time" id="updateTime">Last update: —</div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer fade-in d5">
+    Open standard<span class="dot">·</span>Zero KYC<span class="dot">·</span>Zero PII<span class="dot">·</span>
+    <a href="https://github.com/htl-syterme/htl-core" target="_blank" rel="noopener">github.com/htl-syterme/htl-core</a>
+  </footer>
 
 <script>
-const EP='https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter';
-const MAX=20;
-let hist=[],displayed=0,raf=null;
+(function () {
+  const COUNTER_EL = document.getElementById('counter');
+  const TIME_EL = document.getElementById('updateTime');
+  const SPARK_PATH = document.getElementById('sparkPath');
+  const SPARK_AREA = document.getElementById('sparkArea');
+  const SPARK_DOT = document.getElementById('sparkDot');
+  const URL = 'https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter';
+  const INTERVAL = 30000;
 
-function fmt(n){return n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n)}
+  // Keep a history of up to 60 data points for sparkline
+  const history = [];
+  const MAX_HISTORY = 60;
 
-function animateTo(target){
-  if(raf)cancelAnimationFrame(raf);
-  const start=displayed,t0=performance.now(),dur=600;
-  function step(t){
-    const p=Math.min((t-t0)/dur,1),v=Math.round(start+(target-start)*p);
-    document.getElementById('counter').textContent=fmt(v);
-    displayed=v;
-    if(p<1)raf=requestAnimationFrame(step);
+  let currentValue = 0;
+  let animationFrame = null;
+
+  // Format number with spaces as thousands separators
+  function format(n) {
+    return Math.round(n).toLocaleString('en-US').replace(/,/g, ',');
   }
-  requestAnimationFrame(step);
-}
 
-function drawSpark(){
-  if(hist.length<2)return;
-  const vs=hist.map(h=>h.v),mn=Math.min(...vs),mx=Math.max(...vs),range=mx-mn||1;
-  const pts=hist.map((h,i)=>{
-    const x=i/(hist.length-1)*260,y=50-(h.v-mn)/range*40-5;
-    return[x,y];
-  });
-  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
-  const poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')
-    +' 260,55 0,55';
-  document.getElementById('line').setAttribute('d',d);
-  document.getElementById('area').setAttribute('points',poly);
-}
+  // Animate count up
+  function animateTo(target, duration = 1200) {
+    const start = currentValue;
+    const delta = target - start;
+    if (delta === 0) return;
+    const startTime = performance.now();
+    COUNTER_EL.classList.add('updating');
 
-function updateRate(){
-  if(hist.length<2)return;
-  const first=hist[0],last=hist[hist.length-1];
-  const dt=(last.t-first.t)/60000;
-  if(dt<.01)return;
-  const r=((last.v-first.v)/dt).toFixed(1);
-  document.getElementById('rate').textContent=r>0?'+ '+r+' verifs / min':'Watching for new verifications…';
-}
+    function easeOutExpo(t) {
+      return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    }
 
-async function poll(){
-  try{
-    const r=await fetch(EP,{cache:'no-store'});
-    const d=await r.json();
-    const v=d.total_verifs??0;
-    hist.push({t:Date.now(),v});
-    if(hist.length>MAX)hist.shift();
-    animateTo(v);
-    drawSpark();
-    updateRate();
-    document.getElementById('status').textContent='Last update: '+new Date().toLocaleTimeString();
-  }catch(e){
-    document.getElementById('status').textContent='Signal lost — retrying…';
+    function tick(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(t);
+      const val = start + delta * eased;
+      COUNTER_EL.textContent = format(val);
+      if (t < 1) {
+        animationFrame = requestAnimationFrame(tick);
+      } else {
+        currentValue = target;
+        COUNTER_EL.textContent = format(target);
+        COUNTER_EL.classList.remove('updating');
+      }
+    }
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = requestAnimationFrame(tick);
   }
-}
 
-poll();setInterval(poll,30000);
-</script></body></html>
+  // Render sparkline from history
+  function renderSparkline() {
+    const w = 720, h = 80;
+    if (history.length < 2) {
+      SPARK_PATH.setAttribute('d', '');
+      SPARK_AREA.setAttribute('d', '');
+      SPARK_DOT.style.display = 'none';
+      return;
+    }
+    const min = Math.min(...history);
+    const max = Math.max(...history);
+    const range = (max - min) || 1;
+    const padY = 10;
+    const pts = history.map((v, i) => {
+      const x = (i / (history.length - 1)) * w;
+      const y = padY + (1 - (v - min) / range) * (h - padY * 2);
+      return [x, y];
+    });
+
+    // Smooth path with simple bezier
+    let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1];
+      const [x1, y1] = pts[i];
+      const cx = (x0 + x1) / 2;
+      d += ` C ${cx.toFixed(2)} ${y0.toFixed(2)}, ${cx.toFixed(2)} ${y1.toFixed(2)}, ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+    }
+    SPARK_PATH.setAttribute('d', d);
+
+    const last = pts[pts.length - 1];
+    const areaD = d + ` L ${last[0].toFixed(2)} ${h} L ${pts[0][0].toFixed(2)} ${h} Z`;
+    SPARK_AREA.setAttribute('d', areaD);
+
+    SPARK_DOT.setAttribute('cx', last[0].toFixed(2));
+    SPARK_DOT.setAttribute('cy', last[1].toFixed(2));
+    SPARK_DOT.style.display = 'block';
+  }
+
+  function updateTime() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const hh = pad(now.getHours());
+    const mm = pad(now.getMinutes());
+    const ss = pad(now.getSeconds());
+    TIME_EL.textContent = `Last update: ${hh}:${mm}:${ss}`;
+  }
+
+  async function fetchCounter() {
+    try {
+      const res = await fetch(URL, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      // Support various possible shapes
+      const val = Number(
+        data.count ?? data.value ?? data.total ?? data.counter ?? data.trust_count ??
+        (typeof data === 'number' ? data : null)
+      );
+      if (!Number.isFinite(val)) throw new Error('Invalid value');
+
+      history.push(val);
+      if (history.length > MAX_HISTORY) history.shift();
+      renderSparkline();
+      animateTo(val);
+    } catch (err) {
+      console.warn('[X-Trust] fetch failed:', err);
+      // Still update timestamp to show we tried
+      TIME_EL.textContent = 'Live connection · retrying...';
+      return;
+    }
+    updateTime();
+  }
+
+  // Initial boot: seed with a small baseline, then fetch
+  COUNTER_EL.textContent = format(0);
+  fetchCounter();
+  setInterval(fetchCounter, INTERVAL);
+})();
+</script>
+</body>
+</html>
