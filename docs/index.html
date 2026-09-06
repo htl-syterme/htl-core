@@ -443,7 +443,7 @@
       const data = await res.json();
       // Support various possible shapes
       const val = Number(
-        data.count ?? data.value ?? data.total ?? data.counter ?? data.trust_count ??
+        data.total_verifs ?? data.count ?? data.value ?? data.total ??
         (typeof data === 'number' ? data : null)
       );
       if (!Number.isFinite(val)) throw new Error('Invalid value');
