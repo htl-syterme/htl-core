@@ -349,6 +349,24 @@
 <div style='margin-top:16px;background:#fff;color:#000;border-radius:8px;padding:8px;font-size:12px;font-weight:600'>Buy Scale</div>
 </a>
 </section>
+
+<section style='max-width:720px;width:100%;margin:48px auto 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:48px'>
+<div style='font-size:13px;text-transform:uppercase;letter-spacing:.2em;color:#8e8e93;margin-bottom:24px'>Quick Integration</div>
+<div style='display:flex;flex-direction:column;gap:16px'>
+<div style='background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px'>
+<div style='font-size:11px;color:#8e8e93;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em'>1 — Install</div>
+<code style='color:#fff;font-size:13px;font-family:monospace'>npm install @htl-syterme/htl-core</code>
+</div>
+<div style='background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px'>
+<div style='font-size:11px;color:#8e8e93;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em'>2 — Client side</div>
+<code style='color:#fff;font-size:13px;font-family:monospace'>import { trustFetch } from '@htl-syterme/htl-core';<br>const fetch = trustFetch(process.env.HTL_SECRET);</code>
+</div>
+<div style='background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px'>
+<div style='font-size:11px;color:#8e8e93;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em'>3 — Server side</div>
+<code style='color:#fff;font-size:13px;font-family:monospace'>import { requireTrust } from '@htl-syterme/htl-core';<br>const { trusted, score } = await requireTrust(req, secret);</code>
+</div>
+</div>
+</section>
 </footer>
 
 <script>
