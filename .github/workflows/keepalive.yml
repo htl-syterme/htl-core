@@ -1,0 +1,13 @@
+name: Keep Alive
+on:
+  schedule:
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -X POST "https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter"
+          curl -X POST "https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/security-report"
