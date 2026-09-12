@@ -45,6 +45,8 @@ A signed HTTP header proving a human was behind the request before it hits your 
 ## Quick Start
 
     npm install @htl-syterme/htl-core
+# or via JSR (Deno/Node)
+deno add jsr:@htl-syterme/htl-core
 
 ### Client-side
 
