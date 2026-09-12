@@ -590,5 +590,70 @@
         setInterval(fetchCount, 5000);
       })();
     </script>
+
+    <script>
+      (function(){
+        let scrollEvents=[], touchEvents=[], moveEvents=[];
+        
+        window.addEventListener('scroll', ()=>{
+          scrollEvents.push(Date.now());
+          if(scrollEvents.length>20) scrollEvents.shift();
+          updateScore();
+        });
+        
+        window.addEventListener('touchmove', e=>{
+          touchEvents.push({t:Date.now(), x:e.touches[0].clientX, y:e.touches[0].clientY});
+          if(touchEvents.length>20) touchEvents.shift();
+          updateScore();
+        });
+        
+        window.addEventListener('mousemove', e=>{
+          moveEvents.push({t:Date.now(), x:e.clientX, y:e.clientY});
+          if(moveEvents.length>30) moveEvents.shift();
+          updateScore();
+        });
+        
+        function calcBehaviorScore(){
+          let score = 0.3;
+          if(scrollEvents.length>=2){
+            let gaps=[];
+            for(let i=1;i<scrollEvents.length;i++) gaps.push(scrollEvents[i]-scrollEvents[i-1]);
+            let avg=gaps.reduce((a,b)=>a+b,0)/gaps.length;
+            let variance=gaps.reduce((a,b)=>a+Math.pow(b-avg,2),0)/gaps.length;
+            score += Math.min(0.3, Math.sqrt(variance)/avg * 0.3);
+          }
+          if(touchEvents.length>=2){
+            let speeds=[];
+            for(let i=1;i<touchEvents.length;i++){
+              let dt=touchEvents[i].t-touchEvents[i-1].t;
+              let dx=touchEvents[i].x-touchEvents[i-1].x;
+              let dy=touchEvents[i].y-touchEvents[i-1].y;
+              if(dt>0) speeds.push(Math.sqrt(dx*dx+dy*dy)/dt);
+            }
+            if(speeds.length>0){
+              let avg=speeds.reduce((a,b)=>a+b,0)/speeds.length;
+              let variance=speeds.reduce((a,b)=>a+Math.pow(b-avg,2),0)/speeds.length;
+              score += Math.min(0.2, Math.sqrt(variance)/avg * 0.2);
+            }
+          }
+          if(moveEvents.length>=3) score += 0.2;
+          return Math.min(0.99, score);
+        }
+        
+        function updateScore(){
+          const scoreEl = document.getElementById('demo-score');
+          const statusEl = document.getElementById('demo-status');
+          const ttlEl = document.getElementById('demo-ttl');
+          const tokenEl = document.getElementById('demo-token');
+          if(!scoreEl) return;
+          let s = calcBehaviorScore();
+          scoreEl.textContent = s.toFixed(2);
+          statusEl.textContent = s > 0.6 ? '✓ Human' : '~ Uncertain';
+          ttlEl.textContent = '120s';
+          const p = btoa(JSON.stringify({sub:'demo',score:s,iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+120}));
+          tokenEl.textContent = 'v1.'+p.replace(/=/g,'').substring(0,24)+'.[sig]';
+        }
+      })();
+    </script>
 </body>
 </html>
