@@ -566,5 +566,29 @@
         typing=setTimeout(()=>{ startTTL(calcScore()); },800);
       });
     </script>
+
+    <script>
+      (function(){
+        const el = document.getElementById('counter');
+        if(!el) return;
+        let prev = 0;
+        async function fetchCount(){
+          try {
+            const r = await fetch('https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter');
+            const d = await r.json();
+            const n = d.total_verifs || 0;
+            if(n !== prev){
+              el.style.transform='scale(1.15)';
+              el.style.transition='transform 0.3s ease';
+              setTimeout(()=>{ el.style.transform='scale(1)'; }, 300);
+              prev = n;
+            }
+            el.textContent = n.toLocaleString();
+          } catch(e){}
+        }
+        fetchCount();
+        setInterval(fetchCount, 5000);
+      })();
+    </script>
 </body>
 </html>
