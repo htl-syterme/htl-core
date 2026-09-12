@@ -655,5 +655,44 @@
         }
       })();
     </script>
+
+    <script>
+      (function(){
+        let clicks=[], zones={top:0,mid:0,bot:0};
+        const h = window.innerHeight;
+        
+        window.addEventListener('click', e=>{
+          clicks.push({x:e.clientX, y:e.clientY, t:Date.now()});
+          if(clicks.length>50) clicks.shift();
+          if(e.clientY < h/3) zones.top++;
+          else if(e.clientY < 2*h/3) zones.mid++;
+          else zones.bot++;
+          updateHeatScore();
+        });
+        
+        window.addEventListener('touchend', e=>{
+          const t = e.changedTouches[0];
+          clicks.push({x:t.clientX, y:t.clientY, t:Date.now()});
+          if(clicks.length>50) clicks.shift();
+          updateHeatScore();
+        });
+        
+        function updateHeatScore(){
+          const scoreEl = document.getElementById('demo-score');
+          const statusEl = document.getElementById('demo-status');
+          const tokenEl = document.getElementById('demo-token');
+          if(!scoreEl || clicks.length < 1) return;
+          
+          let diversity = Object.values(zones).filter(v=>v>0).length / 3;
+          let baseScore = parseFloat(scoreEl.textContent) || 0.3;
+          let newScore = Math.min(0.99, baseScore + diversity * 0.15);
+          
+          scoreEl.textContent = newScore.toFixed(2);
+          statusEl.textContent = newScore > 0.6 ? '✓ Human' : '~ Uncertain';
+          const p = btoa(JSON.stringify({sub:'demo',score:newScore,iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+120}));
+          tokenEl.textContent = 'v1.'+p.replace(/=/g,'').substring(0,24)+'.[sig]';
+        }
+      })();
+    </script>
 </body>
 </html>
