@@ -694,5 +694,52 @@
         }
       })();
     </script>
+
+    <script>
+      (function(){
+        const STORAGE_KEY = 'xtrust_session';
+        
+        function saveSession(score){
+          const data = {score: score, ts: Date.now()};
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+        
+        function loadSession(){
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if(!raw) return null;
+            const data = JSON.parse(raw);
+            const age = (Date.now() - data.ts) / 1000;
+            if(age < 120) return data;
+            return null;
+          } catch(e){ return null; }
+        }
+        
+        window.addEventListener('load', ()=>{
+          const session = loadSession();
+          const scoreEl = document.getElementById('demo-score');
+          const statusEl = document.getElementById('demo-status');
+          const ttlEl = document.getElementById('demo-ttl');
+          const tokenEl = document.getElementById('demo-token');
+          if(!scoreEl) return;
+          
+          if(session){
+            const remaining = Math.round(120 - (Date.now()-session.ts)/1000);
+            scoreEl.textContent = session.score.toFixed(2);
+            statusEl.textContent = '✓ Restored';
+            ttlEl.textContent = remaining + 's';
+            const p = btoa(JSON.stringify({sub:'demo',score:session.score,iat:Math.floor(session.ts/1000),exp:Math.floor(session.ts/1000)+120}));
+            tokenEl.textContent = 'v1.'+p.replace(/=/g,'').substring(0,24)+'.[sig]';
+          }
+        });
+        
+        setInterval(()=>{
+          const scoreEl = document.getElementById('demo-score');
+          if(!scoreEl) return;
+          const s = parseFloat(scoreEl.textContent);
+          if(!isNaN(s) && s > 0) saveSession(s);
+        }, 5000);
+      })();
+    </script>
 </body>
 </html>
