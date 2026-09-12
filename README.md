@@ -139,3 +139,16 @@ The IETF Web Bot Auth Working Group (AWS, Cloudflare, Google, Meta) ships agent 
 MIT — github.com/htl-syterme/htl-core
 
 Built for AI infrastructure that refuses to choose between growth and security.
+
+## Why Continuous, Not One-Time
+
+| | Cloudflare Turnstile | X-Trust |
+|---|---|---|
+| Verification | Once at entry | Every request |
+| Friction | Widget + wait | Zero |
+| Scope | Browser legitimacy | Human presence |
+| Standard | Proprietary | Open (IETF gap) |
+
+X-Trust annotates every HTTP request individually.
+120s TTL = automatic continuous re-attestation.
+No checkpoint. No gate. Just proof, per request.
