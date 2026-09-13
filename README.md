@@ -1,4 +1,16 @@
-# HTL — Human Trust Layer
+[
+
+![Spec](https://img.shields.io/badge/spec-HTL1.0-black)
+
+](./SPEC.md) [
+
+![npm](https://img.shields.io/npm/v/@htl-syterme/htl-core?color=black)
+
+](https://www.npmjs.com/package/@htl-syterme/htl-core) [
+
+![JSR](https://img.shields.io/badge/JSR-htl--core-black)
+
+](https://jsr.io/@htl-syterme/htl-core)# HTL — Human Trust Layer
 
 **The open standard proving a human is behind your API request.**
 
