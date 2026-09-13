@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Trust Status</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; color: #fff; font-family: -apple-system, sans-serif; padding: 40px 20px; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  p { color: #8e8e93; font-size: 14px; margin-bottom: 40px; }
+  .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .label { font-size: 15px; font-weight: 500; }
+  .sub { color: #8e8e93; font-size: 12px; margin-top: 4px; }
+  .badge { font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; }
+  .green { background: rgba(255,255,255,0.1); color: #fff; }
+  .red { background: rgba(255,59,48,0.2); color: #ff3b30; }
+  #verifs { font-size: 28px; font-weight: 700; }
+</style>
+</head>
+<body>
+<h1>X-Trust Status</h1>
+<p>Live infrastructure status — updated every 10 seconds</p>
+
+<div class="card">
+  <div>
+    <div class="label">Verification Endpoint</div>
+    <div class="sub">hyper-responder · HMAC-SHA256</div>
+  </div>
+  <div class="badge green" id="status-verif">Checking...</div>
+</div>
+
+<div class="card">
+  <div>
+    <div class="label">Counter Endpoint</div>
+    <div class="sub">trust-counter · public</div>
+  </div>
+  <div class="badge green" id="status-counter">Checking...</div>
+</div>
+
+<div class="card">
+  <div>
+    <div class="label">Total Verifications</div>
+    <div class="sub">all time</div>
+  </div>
+  <div id="verifs">—</div>
+</div>
+
+<div class="card">
+  <div>
+    <div class="label">npm Package</div>
+    <div class="sub">@htl-syterme/htl-core</div>
+  </div>
+  <div class="badge green">v1.0.0</div>
+</div>
+
+<div class="card">
+  <div>
+    <div class="label">JSR Package</div>
+    <div class="sub">jsr:@htl-syterme/htl-core</div>
+  </div>
+  <div class="badge green">v1.0.0</div>
+</div>
+
+<script>
+async function check() {
+  try {
+    const r = await fetch('https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter');
+    const d = await r.json();
+    document.getElementById('status-counter').textContent = 'Operational';
+    document.getElementById('status-counter').className = 'badge green';
+    document.getElementById('verifs').textContent = (d.total_verifs || 0).toLocaleString();
+  } catch {
+    document.getElementById('status-counter').textContent = 'Degraded';
+    document.getElementById('status-counter').className = 'badge red';
+  }
+  try {
+    const r2 = await fetch('https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/hyper-responder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    document.getElementById('status-verif').textContent = r2.status < 500 ? 'Operational' : 'Degraded';
+    document.getElementById('status-verif').className = r2.status < 500 ? 'badge green' : 'badge red';
+  } catch {
+    document.getElementById('status-verif').textContent = 'Degraded';
+    document.getElementById('status-verif').className = 'badge red';
+  }
+}
+check();
+setInterval(check, 10000);
+</script>
+</body>
+</html>
