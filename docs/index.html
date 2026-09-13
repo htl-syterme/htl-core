@@ -761,5 +761,44 @@
         });
       })();
     </script>
+
+<script>
+// Presence Decay — score humain × fraîcheur
+(function() {
+  let issueTime = Date.now();
+  let humanScore = parseFloat(document.getElementById('demo-score')?.textContent || '0.30');
+  
+  function freshnessScore() {
+    const age = (Date.now() - issueTime) / 1000;
+    return Math.max(0, 1 - age / 120);
+  }
+  
+  function presenceScore() {
+    return (humanScore * freshnessScore()).toFixed(3);
+  }
+  
+  // Afficher le decay en temps réel
+  const decayEl = document.getElementById('presence-decay');
+  if (decayEl) {
+    setInterval(() => {
+      const fresh = freshnessScore();
+      const presence = presenceScore();
+      decayEl.textContent = presence;
+      decayEl.style.color = fresh > 0.6 ? '#fff' : fresh > 0.3 ? '#888' : '#444';
+    }, 1000);
+  }
+  
+  // Reset si interaction humaine
+  document.addEventListener('keydown', () => { issueTime = Date.now(); });
+  document.addEventListener('mousemove', () => { issueTime = Date.now(); });
+  document.addEventListener('touchmove', () => { issueTime = Date.now(); });
+})();
+</script>
+
+<div style="text-align:center;margin:20px 0;font-family:-apple-system,sans-serif">
+  <div style="color:#8e8e93;font-size:12px;margin-bottom:4px">PRESENCE SCORE (decays over 120s)</div>
+  <div id="presence-decay" style="font-size:48px;font-weight:700;color:#fff;transition:color 1s">0.300</div>
+  <div style="color:#8e8e93;font-size:11px;margin-top:4px">Move mouse or type to refresh</div>
+</div>
 </body>
 </html>
