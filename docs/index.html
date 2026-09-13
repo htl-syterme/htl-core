@@ -756,8 +756,8 @@
         
         window.addEventListener('load', ()=>{
           const body = document.body;
-          body.insertBefore(prs, body.firstChild);
-          body.insertBefore(jsr, body.firstChild);
+          body.appendChild(prs);
+          body.appendChild(jsr);
         });
       })();
     </script>
