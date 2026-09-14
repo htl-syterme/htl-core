@@ -773,6 +773,15 @@
     return Math.max(0, 1 - age / 120);
   }
   
+  setInterval(() => {
+    const fresh = freshnessScore();
+    const el = document.getElementById('presence-decay');
+    if (el) {
+      el.textContent = (humanScore * fresh).toFixed(3);
+      el.style.color = fresh > 0.6 ? '#fff' : fresh > 0.3 ? '#888' : '#444';
+    }
+  }, 1000);
+  
   function presenceScore() {
     return (humanScore * freshnessScore()).toFixed(3);
   }
