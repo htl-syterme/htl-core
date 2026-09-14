@@ -545,20 +545,14 @@
         const p=btoa(JSON.stringify({sub:'demo',score:s,iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+120}));
         return 'v1.'+p.replace(/=/g,'').substring(0,24)+'.[sig]';
       }
-      function startTTL(s){
-        intervals.forEach(clearInterval);
-        ttl=120;
-        ttlEl.textContent=ttl+'s';
-        const sc=parseFloat(s.toFixed(2));
-        score.textContent=sc;
-        status.textContent=sc>0.7?'✓ Human':'~ Uncertain';
-        token.textContent=fakeToken(sc);
-        intervals.push(setInterval(()=>{
-          ttl--;
-          ttlEl.textContent=ttl+'s';
-          if(ttl<=0){ttlEl.textContent='Expired';status.textContent='Re-attesting...';}
-        },1000));
-      }
+        function startTTL(s){
+          const _start=Date.now();
+          setInterval(()=>{
+            const _r=Math.max(0,Math.round(120-(Date.now()-_start)/1000));
+            ttlEl.textContent=_r+'s';
+            if(_r<=0){ttlEl.textContent='Expired';status.textContent='Re-attesting...';}
+          },1000);
+        }
       input.addEventListener('keydown',e=>{
         keyTimes.push(Date.now());
         if(keyTimes.length>20) keyTimes.shift();
