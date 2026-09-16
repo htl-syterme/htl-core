@@ -1,0 +1,8 @@
+We just published HTL/1.0 — the open spec for human presence attestation in HTTP.
+
+IETF Web Bot Auth proves which bot is calling.
+HTL/1.0 proves a human is present.
+
+Zero KYC. Zero PII. Per-request. Edge-native.
+
+Spec: github.com/htl-syterme/htl-core/blob/main/SPEC.md
