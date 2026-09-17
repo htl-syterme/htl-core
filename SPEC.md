@@ -39,3 +39,36 @@ X-Trust + Web Bot Auth = complete HTTP trust stack:
 
 npm install @htl-syterme/htl-core
 deno add jsr:@htl-syterme/htl-core
+
+## Per-tenant keys
+
+As of v1.1, each customer's API key is bound to a signing key identified by
+a `kid` claim in the payload. Verifiers MUST look up the secret by `kid`.
+Implementations that only support a single shared secret MUST reject payloads
+whose `kid` is not their known value.
+
+Signing keys are stored hashed; the plaintext is shown once at issuance.
+
+## Time-bounded score
+
+A verifier MUST reject any score that is not consistent with the elapsed
+wall-clock time since `iat`. The reference implementation caps the effective
+score at `0.30 + 0.10 * floor(elapsed_seconds / 15)`. This bounds the economic
+cost of fabricating a high score: a client cannot present a 0.9 score on a
+session that started 5 seconds ago.
+
+## Threat model
+
+The score is an economic signal, not a cryptographic proof of humanity.
+
+- A determined client can raise its own score, at a cost proportional to
+  wall-clock time per session (see Time-bounded score).
+- The header is signed with HMAC-SHA256; forged signatures are rejected.
+- The signature does not attest to what happened on the client. It attests
+  that a holder of the API key signed a payload claiming a given score.
+- Mixed traffic on a single IP (mobile carriers, corporate NAT) is expected.
+  Verifiers SHOULD NOT block on IP alone.
+- Replay is mitigated by a server-issued nonce plus a 120s TTL.
+
+Consumers SHOULD treat the score as one signal among several, and MUST NOT
+rely on it as the sole basis for high-stakes decisions.
