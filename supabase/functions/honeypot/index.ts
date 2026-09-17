@@ -1,7 +1,7 @@
 /**
- * honeypot — traps scanners probing for common sensitive paths.
+ * honeypot - traps scanners probing for common sensitive paths.
  * Logs the hit, blacklists the IP for 7 days, alerts by email, returns 404.
- * Never returns fake credentials — a real dev must never mistake them for keys.
+ * Never returns fake credentials - a real dev must never mistake them for keys.
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -14,7 +14,6 @@ const cors = {
 };
 const json = { ...cors, 'Content-Type': 'application/json' };
 
-/** Paths that only a scanner would hit. */
 const TRAPS = [
   '/admin', '/api/v1/secret-keys', '/debug/config',
   '/wp-login.php', '/.env', '/htl-core/internal',
@@ -42,7 +41,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Record the event
     await sb.from('security_events').insert({
       event_type: 'honeypot',
       ip,
@@ -52,7 +50,6 @@ Deno.serve(async (req) => {
       details: { trap: path },
     });
 
-    // 2. Blacklist the IP
     await sb.from('ip_blacklist').upsert({
       ip,
       reason: 'honeypot_triggered',
@@ -60,20 +57,19 @@ Deno.serve(async (req) => {
       expires_at: new Date(Date.now() + BLACKLIST_DAYS * 24 * 3600 * 1000).toISOString(),
     });
 
-    // 3. Alert by email (non-blocking on failure)
     const resendKey = Deno.env.get('RESEND_KEY') ?? '';
     if (resendKey) {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${resendKey}`,
+          Authorization: 'Bearer ' + resendKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'onboarding@resend.dev',
           to: 'diengamine.htl@gmail.com',
           subject: '[X-Trust ALERT] Honeypot triggered by ' + ip,
-          html: `<p><strong>IP:</strong> ${ip}</p><p><strong>Path:</strong> ${path}</p><p><strong>User-Agent:</strong> ${ua}</p>`,
+          html: '<p><strong>IP:</strong> ' + ip + '</p><p><strong>Path:</strong> ' + path + '</p><p><strong>UA:</strong> ' + ua + '</p>',
         }),
       });
     }
@@ -81,10 +77,8 @@ Deno.serve(async (req) => {
     console.warn('[honeypot] log/alert failed:', err);
   }
 
-  // Random delay: makes automated probing slower and less predictable
   await new Promise((r) => setTimeout(r, 500 + Math.random() * 1000));
 
-  // Honest 404 — no fake credentials
   return new Response(JSON.stringify({ error: 'Not Found' }), {
     status: 404,
     headers: json,
