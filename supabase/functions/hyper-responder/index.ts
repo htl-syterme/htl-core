@@ -166,9 +166,38 @@ Deno.serve(async (req) => {
   });
     }
 
-    const secret = Deno.env.get('HTL_SECRET') ?? '';
     const token = req.headers.get('x-trust') ?? '';
-    const payload = secret && token ? await verify(token, secret) : null;
+    let payload = null;
+    if (token) {
+      // Peek kid from payload without verifying (safe: string only, no eval)
+      let kid = 'v1';
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const decoded = JSON.parse(new TextDecoder().decode(b64urlToBytes(parts[1])));
+          if (typeof decoded.kid === 'string') kid = decoded.kid;
+        }
+      } catch {
+        // malformed, falls through to fallback
+      }
+      let secret = '';
+      if (kid === 'v1') {
+        secret = Deno.env.get('HTL_SECRET') ?? '';
+      } else {
+        try {
+          const { data: k } = await withTimeout(
+            supabase.from('signing_keys').select('secret, valid_until').eq('kid', kid).maybeSingle(),
+            DB_TIMEOUT_MS
+          );
+          if (k && (!k.valid_until || new Date(k.valid_until) > new Date())) {
+            secret = k.secret;
+          }
+        } catch {
+          // DB down: fallback below
+        }
+      }
+      payload = secret ? await verify(token, secret) : null;
+    }
 
     try {
       await sb.from('security_events').insert({
