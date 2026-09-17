@@ -74,8 +74,8 @@ Deno.serve(async (req) => {
     const pl = JSON.stringify({ sub: 'demo', score: 0.42, iat: t, exp: t + 120, nonce: crypto.randomUUID() });
     const p64 = btoa(pl).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(sk), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-    const sb = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(p64));
-    const sg = btoa(String.fromCharCode(...new Uint8Array(sb))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const sigBytes = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(p64));
+    const sg = btoa(String.fromCharCode(...new Uint8Array(sigBytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     return new Response(JSON.stringify({ demo: true }), { headers: { ...json, 'X-Trust': 'v1.' + p64 + '.' + sg } });
   }
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
