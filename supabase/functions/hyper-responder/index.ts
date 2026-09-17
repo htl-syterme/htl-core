@@ -1,5 +1,5 @@
 /**
- * hyper-responder — verifies an X-Trust HMAC-SHA256 header and records
+ * hyper-responder - verifies an X-Trust HMAC-SHA256 header and records
  * the trust event. Public endpoint (Verify JWT = OFF).
  * Guards: CORS whitelist, rate limit per IP, nonce anti-replay, DB timeout.
  */
@@ -14,12 +14,10 @@ const cors = {
 };
 const json = { ...cors, 'Content-Type': 'application/json' };
 
-const RATE_LIMIT_MAX = 100;         // requests
-const RATE_LIMIT_WINDOW_S = 3600;   // per hour, per IP
+const RATE_LIMIT_MAX = 100;
+const RATE_LIMIT_WINDOW_S = 3600;
 const DB_TIMEOUT_MS = 5000;
 const MAX_BODY_BYTES = 10240;
-
-/* ---------- helpers ---------- */
 
 function b64urlToBytes(s: string): Uint8Array {
   const b = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
@@ -32,7 +30,8 @@ async function verify(
 ): Promise<{ sub: string; score: number; iat: number; exp: number; nonce?: string } | null> {
   const parts = token.split('.');
   if (parts.length !== 3 || parts[0] !== 'v1') return null;
-  const [, payloadB64, sigB64] = parts;
+  const payloadB64 = parts[1];
+  const sigB64 = parts[2];
   try {
     const key = await crypto.subtle.importKey(
       'raw',
@@ -61,15 +60,12 @@ async function verify(
   }
 }
 
-/** Races a promise against a timeout — prevents hanging DB calls. */
 function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     p,
     new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
   ]);
 }
-
-/* ---------- main ---------- */
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -90,7 +86,6 @@ Deno.serve(async (req) => {
   const ip = (req.headers.get('x-forwarded-for') || '0.0.0.0').split(',')[0].trim();
 
   try {
-    // 1. Rate limit per IP
     const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_S * 1000).toISOString();
     const { count: recent } = await withTimeout(
       sb.from('security_events')
@@ -112,29 +107,30 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: json });
     }
 
-    // 2. Verify the token
     const secret = Deno.env.get('HTL_SECRET') ?? '';
     const token = req.headers.get('x-trust') ?? '';
     const payload = secret && token ? await verify(token, secret) : null;
 
-    // 3. Log the attempt (lightweight, non-blocking on error)
-    await sb.from('security_events').insert({
-      event_type: 'hyper_call',
-      ip,
-      path: '/hyper-responder',
-      score: payload ? payload.score * 100 : 0,
-      details: { trusted: !!payload },
-    }).catch(() => {});
+    try {
+      await sb.from('security_events').insert({
+        event_type: 'hyper_call',
+        ip,
+        path: '/hyper-responder',
+        score: payload ? payload.score * 100 : 0,
+        details: { trusted: !!payload },
+      });
+    } catch {
+      // non-blocking
+    }
 
     if (!payload) {
       return new Response(JSON.stringify({ recorded: false, trusted: false }), { headers: json });
     }
 
-    // 4. Nonce anti-replay (if provided)
     if (payload.nonce) {
       const { error: nonceErr } = await sb
         .from('nonce_cache')
-        .insert({ nonce: payload.nonce, expires_at: new Date(Date.now() + 120_000).toISOString() });
+        .insert({ nonce: payload.nonce, expires_at: new Date(Date.now() + 120000).toISOString() });
 
       if (nonceErr) {
         await sb.from('security_events').insert({
@@ -143,12 +139,11 @@ Deno.serve(async (req) => {
           path: '/hyper-responder',
           score: 80,
           details: { nonce: payload.nonce },
-        }).catch(() => {});
+        }).then(() => {}, () => {});
         return new Response(JSON.stringify({ error: 'replay' }), { status: 429, headers: json });
       }
     }
 
-    // 5. Hash + insert trust event
     const digest = await crypto.subtle.digest(
       'SHA-256',
       new TextEncoder().encode(JSON.stringify({ sub: payload.sub, score: payload.score }))
