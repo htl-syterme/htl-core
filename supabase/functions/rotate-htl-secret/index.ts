@@ -47,6 +47,8 @@ Deno.serve(async (req) => {
     const { data: current } = await sb.rpc('read_secret', { secret_name: 'htl_secret_current' });
 
     const newSecret = generateSecret();
+    // TODO(security): after next session, hook signing_keys rotation here
+
     const newVersion = 'v' + Date.now();
 
     if (current) {
