@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "htl-verify"
+version = "1.0.0"
+description = "Verify X-Trust signed human-presence headers. Standard library only."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Dieng", email = "diengamine.htl@gmail.com" }]
+keywords = ["trust", "human-proof", "anti-bot", "x-trust", "llm", "ai-infrastructure"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://github.com/htl-syterme/htl-core"
+Repository = "https://github.com/htl-syterme/htl-core"
+Spec = "https://github.com/htl-syterme/htl-core/blob/main/SPEC.md"
