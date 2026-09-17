@@ -1,5 +1,5 @@
 /**
- * security-report — sends the daily X-Trust security digest.
+ * security-report - sends the daily X-Trust security digest.
  * Protected by x-cron-secret. Only callable by the scheduled cron.
  */
 
@@ -13,7 +13,6 @@ const cors = {
 };
 const json = { ...cors, 'Content-Type': 'application/json' };
 
-/** Constant-time string compare — avoids timing leaks on the cron secret. */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let diff = 0;
@@ -59,23 +58,22 @@ Deno.serve(async (req) => {
 
     const blacklistHtml =
       blacklist.length > 0
-        ? blacklist.map((b) => `<li>${b.ip} — ${b.reason}</li>`).join('')
+        ? blacklist.map((b) => '<li>' + b.ip + ' / ' + b.reason + '</li>').join('')
         : '<li>None</li>';
 
-    const html = `
-<h2>X-Trust — Daily Security Report</h2>
-<p>Window: last 24h</p>
-<ul>
-  <li>Total events: <strong>${total}</strong></li>
-  <li>Honeypot triggers: <strong>${honeypots}</strong></li>
-  <li>Replay attacks blocked: <strong>${replays}</strong></li>
-  <li>Rate limits hit: <strong>${ratelimits}</strong></li>
-  <li>Secret rotations OK: <strong>${rotationOk}</strong></li>
-</ul>
-<h3>Active blacklist (top 10)</h3>
-<ul>${blacklistHtml}</ul>
-<p>System: <strong>OPERATIONAL</strong></p>
-`;
+    const html =
+      '<h2>X-Trust - Daily Security Report</h2>' +
+      '<p>Window: last 24h</p>' +
+      '<ul>' +
+      '<li>Total events: <strong>' + total + '</strong></li>' +
+      '<li>Honeypot triggers: <strong>' + honeypots + '</strong></li>' +
+      '<li>Replay attacks blocked: <strong>' + replays + '</strong></li>' +
+      '<li>Rate limits hit: <strong>' + ratelimits + '</strong></li>' +
+      '<li>Secret rotations OK: <strong>' + rotationOk + '</strong></li>' +
+      '</ul>' +
+      '<h3>Active blacklist (top 10)</h3>' +
+      '<ul>' + blacklistHtml + '</ul>' +
+      '<p>System: <strong>OPERATIONAL</strong></p>';
 
     const resendKey = Deno.env.get('RESEND_KEY') ?? '';
     let emailSent = false;
@@ -83,21 +81,21 @@ Deno.serve(async (req) => {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${resendKey}`,
+          Authorization: 'Bearer ' + resendKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'onboarding@resend.dev',
           to: 'diengamine.htl@gmail.com',
           subject: '[X-Trust] Daily Security Report',
-          html,
+          html: html,
         }),
       });
       emailSent = res.ok;
     }
 
     return new Response(
-      JSON.stringify({ ok: true, total, honeypots, replays, ratelimits, rotationOk, emailSent }),
+      JSON.stringify({ ok: true, total: total, honeypots: honeypots, replays: replays, ratelimits: ratelimits, rotationOk: rotationOk, emailSent: emailSent }),
       { headers: json }
     );
   } catch (err) {
