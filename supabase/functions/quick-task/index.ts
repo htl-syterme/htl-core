@@ -138,8 +138,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ received: true, processed: false, reason: 'duplicate' }), { status: 200, headers: json });
     }
     const apiKey = generateApiKey();
+      const keyBytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(apiKey));
+      const keyHex = Array.from(new Uint8Array(keyBytes)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const keyHash = '\\x' + keyHex;
+      const keyPrefix = apiKey.slice(0, 12);
     const { error: insertError } = await supabase.from('api_keys').insert({
-      api_key: apiKey,
+        key_hash: keyHash,
+        key_prefix: keyPrefix,
       email,
       order_id: orderId,
       status: 'active',
