@@ -68,6 +68,16 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 }
 
 Deno.serve(async (req) => {
+  if (new URL(req.url).pathname.endsWith('/demo') && req.method === 'GET') {
+    const sk = Deno.env.get('HTL_SECRET') ?? '';
+    const t = Math.floor(Date.now() / 1000);
+    const pl = JSON.stringify({ sub: 'demo', score: 0.42, iat: t, exp: t + 120, nonce: crypto.randomUUID() });
+    const p64 = btoa(pl).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(sk), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const sb = await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(p64));
+    const sg = btoa(String.fromCharCode(...new Uint8Array(sb))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return new Response(JSON.stringify({ demo: true }), { headers: { ...json, 'X-Trust': 'v1.' + p64 + '.' + sg } });
+  }
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'method_not_allowed' }), { status: 405, headers: json });
