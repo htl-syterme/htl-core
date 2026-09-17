@@ -20,7 +20,7 @@ const TRAPS = [
   '/api/keys', '/config', '/.git',
 ];
 
-const BLACKLIST_DAYS = 7;
+const BLACKLIST_HOURS = 1;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       ip,
       reason: 'honeypot_triggered',
       score: 100,
-      expires_at: new Date(Date.now() + BLACKLIST_DAYS * 24 * 3600 * 1000).toISOString(),
+      expires_at: new Date(Date.now() + BLACKLIST_HOURS * 3600 * 1000).toISOString(),
     });
 
     const resendKey = Deno.env.get('RESEND_KEY') ?? '';
