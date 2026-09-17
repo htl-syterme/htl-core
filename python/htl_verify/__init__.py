@@ -42,7 +42,7 @@ def verify(
         raise Untrusted(f"unsupported version: {version}")
 
     payload = _b64d(payload_b64)
-    expected = hmac.new(key, payload, hashlib.sha256).digest()
+    expected = hmac.new(key, payload_b64.encode("ascii"), hashlib.sha256).digest()
     provided = _b64d(sig_b64)
     if not hmac.compare_digest(expected, provided):
         raise Untrusted("bad signature")
