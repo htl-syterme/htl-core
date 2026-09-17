@@ -254,3 +254,260 @@
   @keyframes fadeIn {
     to { opacity: 1; transform: translateY(0); }
   }
+
+/* -------------------------------------------------------------------------- *
+ * Sections (sémantique HTML5)
+ * -------------------------------------------------------------------------- */
+
+.section {
+  width: 100%;
+  max-width: 720px;
+  margin: 48px auto 0;
+}
+
+.section-title {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.section-lede {
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------------------------- *
+ * Live demo
+ * -------------------------------------------------------------------------- */
+
+#demo-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 14px;
+  color: var(--fg);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.demo-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.demo-cell {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.demo-cell-label {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.demo-cell-value {
+  color: var(--fg);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-cell-value.small {
+  font-size: 14px;
+}
+
+.demo-token {
+  margin-top: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  word-break: break-all;
+  min-height: 48px;
+}
+
+.presence {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.presence-label {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.presence-value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  transition: color 1s ease;
+}
+
+.presence-hint {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Pricing
+ * -------------------------------------------------------------------------- */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.pricing-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--fg);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.pricing-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.pricing-card.featured {
+  background: var(--surface-strong);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pricing-amount {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.pricing-detail {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pricing-cta {
+  margin-top: 16px;
+  background: #fff;
+  color: #000;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Integration steps
+ * -------------------------------------------------------------------------- */
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.step-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.step code {
+  color: var(--fg);
+  font-size: 13px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Site footer
+ * -------------------------------------------------------------------------- */
+
+.site-footer {
+  width: 100%;
+  max-width: 720px;
+  margin: 64px auto 0;
+  padding: 32px 20px 24px;
+  border-top: 1px solid var(--hairline);
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer-tagline {
+  margin: 0 0 16px;
+}
+
+.footer-links {
+  margin: 0 0 16px;
+}
+
+.footer-links a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-note {
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+
+/* -------------------------------------------------------------------------- *
+ * Responsive — extend existing breakpoint
+ * -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
