@@ -35,7 +35,7 @@ HTL/1.0 is a formal open specification — the human-presence complement to IETF
 - [Read the HTL/1.0 spec](./SPEC.md)
 - [Zero-dependency verifier](./htl-verify.ts) — works on Cloudflare Workers, Deno, Bun, Node.js
 
-> Web Bot Auth proves *which bot* is calling. HTL/1.0 proves *a human is present*. These are orthogonal protocols designed to compose.
+> Web Bot Auth proves *which bot* is calling. HTL/1.0 emits a signed score of *how human a session behaves*. These are orthogonal, composable protocols. These are orthogonal protocols designed to compose.
 
 ## The Problem
 
