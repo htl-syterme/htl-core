@@ -212,7 +212,7 @@ Deno.serve(async (req) => {
       .join('');
 
     const { error: dbErr } = await withTimeout(
-      sb.from('trust_events').insert({ trust_score: payload.score, signal_hash: signalHash }),
+      sb.from('trust_events').insert({ trust_score: payload.score, signal_hash: signalHash }),, api_key_id: keyRow.id })
       DB_TIMEOUT_MS
     );
 
