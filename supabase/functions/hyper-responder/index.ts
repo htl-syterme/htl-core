@@ -186,6 +186,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ recorded: false, trusted: false }), { headers: json });
     }
 
+    // Time-bound the score: growth is capped by wall-clock time since issuance,
+    // so a bot must hold a session for ~90s to reach 0.9. Makes fabrication
+    // economically proportional to time, per SPEC Threat Model.
+    const elapsed = Math.floor(Date.now() / 1000) - payload.iat;
+    const maxReachable = 0.30 + 0.10 * Math.floor(Math.max(0, elapsed) / 15);
+    const effectiveScore = Math.min(payload.score, maxReachable);
+
     if (payload.nonce) {
       const { error: nonceErr } = await sb
         .from('nonce_cache')
@@ -221,7 +228,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ recorded: true, trusted: true, score: payload.score }),
+      JSON.stringify({ recorded: true, trusted: true, score: effectiveScore, raw_score: payload.score }),
       { headers: json }
     );
   } catch (err) {
