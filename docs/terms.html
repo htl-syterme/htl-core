@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Terms of Service — X-Trust (Human Trust Layer)</title>
+<style>
+  :root{--bg:#000;--text:#fff;--muted:#8e8e93;--body:#c7c7cc;--border:rgba(255,255,255,0.1);}
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--body);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:720px;margin:0 auto;padding:40px 20px;}
+  a{color:var(--body);text-decoration:underline;text-decoration-color:rgba(255,255,255,0.35);text-underline-offset:3px;}
+  a:hover{color:#fff;}
+  .site-header{padding-bottom:22px;border-bottom:1px solid var(--border);}
+  .brand{margin:0;color:#fff;font-size:14px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;}
+  .brand span{color:var(--muted);font-weight:400;font-size:13px;letter-spacing:0.04em;text-transform:none;}
+  h1{color:#fff;font-size:clamp(28px,7vw,38px);line-height:1.2;letter-spacing:-0.02em;font-weight:600;margin:32px 0 10px;}
+  .doc-meta{margin:0 0 24px;color:var(--muted);font-size:14px;}
+  .lede{font-size:17px;margin:0 0 18px;}
+  h2{color:#fff;font-size:19px;line-height:1.35;letter-spacing:-0.01em;font-weight:600;margin:44px 0 12px;}
+  p{margin:0 0 14px;}
+  ul{margin:0 0 16px;padding-left:22px;}
+  li{margin:0 0 8px;}
+  strong{color:#fff;font-weight:600;}
+  .callout{border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:26px 0;background:rgba(255,255,255,0.02);}
+  .callout h2{margin:0 0 12px;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .callout ul,.callout p{margin-bottom:0;}
+  .contents{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;margin:26px 0 8px;font-size:14px;}
+  .contents-label{display:block;color:var(--muted);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+  .contents a{color:var(--body);text-decoration:none;}
+  .contents a:hover{color:#fff;text-decoration:underline;}
+  .sep{color:var(--muted);}
+  .site-footer{border-top:1px solid var(--border);margin-top:56px;padding-top:22px;}
+  .footer-nav{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .footer-nav a{color:var(--muted);text-decoration:none;}
+  .footer-nav a:hover{color:#fff;text-decoration:underline;}
+  .footer-nav a[aria-current="page"]{color:#fff;}
+  .footer-note{margin:0;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="site-header"><p class="brand">X-Trust <span>Human Trust Layer</span></p></header>
+<main>
+<h1>Terms of Service</h1>
+<p class="doc-meta">Effective 17 September 2026 &middot; Version 1.0 &middot; Provider: Dieng &mdash; HTL</p>
+<p class="lede">These Terms of Service govern your access to and use of X-Trust, the Human Trust Layer, operated by Dieng &mdash; HTL. By purchasing a credit pack, or by calling the Service with an API key, you agree to these Terms.</p>
+
+<h2 id="about">1. About these Terms</h2>
+<p>The Service is operated by Dieng &mdash; HTL (Human Trust Layer), an independent software vendor based in Côte d'Ivoire. Contact: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>.</p>
+<p>These Terms apply together with our <a href="privacy.html">Privacy Policy</a> and <a href="refund.html">Refund Policy</a>. Where a separate written agreement signed by both parties covers the same subject, that agreement prevails.</p>
+
+<h2 id="eligibility">2. Eligibility</h2>
+<p>You must be at least 18 years old, have legal capacity to contract, and not be located in or subject to an embargo or sanctions regime that prohibits us from providing the Service to you. If you use the Service for an organisation, you confirm you are authorised to bind that organisation.</p>
+
+<h2 id="service">3. The Service</h2>
+<p>X-Trust is a server-side verification layer. Your backend sends a request to our endpoint with the signals it can legitimately observe about the session. The Service evaluates those signals and, when the configured threshold is met, returns a signed HTTP header proving that a human was present in the loop. The header is signed with HMAC-SHA256 over a canonical string of the response fields, using a shared secret assigned to your API key. You validate the signature on your own infrastructure.</p>
+<p>What the Service is: a signal you can use to reduce automated abuse, scripted traffic and bot-driven actions in your own product. What the Service is not: an identity, age, KYC, AML, sanctions or background verification service. It does not tell you who a person is.</p>
+
+<h2 id="keys">4. API keys and account security</h2>
+<ul>
+<li>An API key is issued after a completed purchase. We display it once at issuance and store only a hash of the secret.</li>
+<li>Keys and signing secrets are credentials. Keep them confidential, store them server-side, and never publish them in client-side code or public repositories.</li>
+<li>Use one key per environment. Do not share keys between unrelated applications.</li>
+<li>If you believe a key is exposed, stop using it and email us immediately at <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>.</li>
+<li>We may rate-limit, rotate or revoke credentials where we reasonably believe they are exposed, shared, abused or used unlawfully.</li>
+</ul>
+
+<h2 id="acceptable-use">5. Acceptable use</h2>
+<p>You agree not to do any of the following, and not to permit anyone else to do them through your key:</p>
+<ul>
+<li>Use the Service in breach of applicable law, regulation or the rights of others.</li>
+<li>Attempt to defeat, spoof, emulate or resell a way around the human-presence check.</li>
+<li>Probe, scrape or reverse-engineer the scoring logic or signature scheme.</li>
+<li>Resell, sublicense or provide the Service to third parties as your own without our written agreement.</li>
+<li>Use the Service for spam, credential stuffing, account takeover, or any attack on third-party systems.</li>
+<li>Circumvent rate limits, billing meters, access controls or our security measures.</li>
+</ul>
+
+<h2 id="no-high-stakes">6. No high-stakes reliance</h2>
+<p>Human-presence scoring is probabilistic. False positives and false negatives occur. You agree that:</p>
+<ul>
+<li>You will not use a verification result as the sole basis for any decision that produces legal or similarly significant effects on an individual, including credit, employment, housing, insurance, healthcare, education or immigration.</li>
+<li>You will keep human review available for consequential decisions.</li>
+<li>You will not present a verification result as an identity confirmation or a government attestation.</li>
+<li>You remain responsible for your own risk decisions and for compliance with rules that apply to your business.</li>
+</ul>
+
+<h2 id="fees">7. Fees and payment</h2>
+<ul>
+<li>The Service is sold as prepaid, pay-as-you-go credit packs. There is no recurring subscription and no auto-renewal.</li>
+<li>A verification event is billable when the Service returns a decision for a request made with valid credentials. Requests rejected for invalid credentials or that fail because of an error on our side are not billable.</li>
+<li>All prices are displayed and charged in US dollars (USD), excluding applicable taxes calculated at checkout.</li>
+<li>Payments are handled by Paddle.com Market Ltd., which acts as Merchant of Record for every order. Paddle is the seller shown on your statement, issues your invoice, handles tax and processes refunds. Your card details are given to Paddle, never to us.</li>
+<li>We may change prices for future purchases. A change never reprices credits you have already bought.</li>
+<li>Credits do not expire while the Service is generally available. If we permanently discontinue the Service, we refund unused balances per the Refund Policy.</li>
+<li>If a payment is reversed, charged back or found fraudulent, we may suspend the associated keys until resolved.</li>
+</ul>
+
+<h2 id="refunds">8. Refunds</h2>
+<p>Refunds are governed by our <a href="refund.html">Refund Policy</a>: full refund within 14 days if your API key was never used; case-by-case review if it was, always honouring rights you have under mandatory consumer law.</p>
+
+<h2 id="data">9. Data and privacy</h2>
+<p>X-Trust is designed on a Zero PII, Zero KYC principle. We store the buyer email used at checkout and anonymized verification events consisting of a score and a cryptographic hash. We do not collect names, addresses, identity documents, biometrics or end-user identities. Full detail is in the <a href="privacy.html">Privacy Policy</a>.</p>
+
+<h2 id="ip">10. Intellectual property</h2>
+<ul>
+<li>We own and retain all rights in the Service, including the scoring logic, thresholds, signature scheme, APIs, documentation, software and the "X-Trust" and "Human Trust Layer" names and logos.</li>
+<li>You receive a limited, non-exclusive, non-transferable, revocable licence to call the Service for your internal business purposes while you hold sufficient credits and these Terms are in force.</li>
+<li>You keep all rights in your own content and systems. Feedback you send us may be used to improve the Service without obligation.</li>
+</ul>
+
+<h2 id="availability">11. Availability and support</h2>
+<p>We use commercially reasonable efforts to keep the Service available. Unless a separate written agreement says otherwise, we do not commit to a service level, uptime percentage or recovery time objective. For breaking changes to a documented API, we aim to give at least 30 days' notice. Support is provided by email at <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a> on a commercially reasonable efforts basis.</p>
+
+<h2 id="third-parties">12. Third-party services</h2>
+<p>The Service depends on third parties, including Paddle (payments, invoicing, tax, fraud screening) and hosting, network and email providers. Those services are governed by their own terms. We are not responsible for the acts of third parties, but we choose providers carefully and remain responsible for the parts of the Service we control.</p>
+
+<h2 id="termination">13. Suspension and termination</h2>
+<p>You may stop using the Service at any time. We may suspend or terminate your access, with notice where practicable, if you materially breach these Terms, if payment is reversed or fraudulent, or if required by law. If we terminate for convenience rather than breach, we refund the unused balance pro rata. Sections on data, IP, disclaimers, liability, indemnity, governing law and general provisions survive termination.</p>
+
+<h2 id="disclaimers">14. Disclaimers</h2>
+<p>To the maximum extent permitted by applicable law, the Service is provided "as is" and "as available". We disclaim all implied warranties, including merchantability, fitness for a particular purpose and non-infringement. We do not warrant that the Service will be uninterrupted or error-free, or that any given request will be classified as human or non-human. Nothing here excludes warranty, right or remedy that cannot lawfully be excluded.</p>
+
+<h2 id="liability">15. Limitation of liability</h2>
+<p>To the maximum extent permitted by applicable law, neither party is liable for indirect, incidental, special or consequential losses, or for lost profits, revenue, data or business opportunity. Our total aggregate liability is limited to the greater of (a) the total amount you paid in the 12 months before the event giving rise to the claim, and (b) USD 100. These limits do not apply to fraud, wilful misconduct, gross negligence, or liability that cannot be limited by law.</p>
+
+<h2 id="indemnity">16. Indemnity</h2>
+<p>You will indemnify and hold harmless Dieng &mdash; HTL against third-party claims and reasonable costs arising from your use of the Service in breach of these Terms, your unlawful use of the Service, or your representations to your own end users about what a verification result means.</p>
+
+<h2 id="law">17. Governing law and jurisdiction</h2>
+<p>These Terms are governed by the laws of the Republic of Côte d'Ivoire, excluding conflict-of-laws rules. Subject to the paragraph below, the courts of Abidjan have exclusive jurisdiction. Before proceedings, the parties will attempt in good faith to resolve the dispute through written negotiation for at least 30 days.</p>
+<p>If you are a consumer, nothing in this section deprives you of the protection of the mandatory consumer laws of your country of residence or of your right to bring proceedings before your local courts.</p>
+
+<h2 id="changes">18. Changes to these Terms</h2>
+<p>We may update these Terms. The current version is always published on this page with a new effective date. For material changes, we will give reasonable notice, and where required by law at least 14 days before they take effect. Continued use of the Service after the effective date means you accept the updated Terms.</p>
+
+<h2 id="general">19. General</h2>
+<p>These Terms, together with the Privacy Policy, Refund Policy and any separate written agreement, are the entire agreement between us on this subject. If a provision is found unenforceable, the rest remains in force. Our failure to enforce a provision is not a waiver. You may not assign these Terms without our written consent. Neither party is liable for events beyond its reasonable control. The parties are independent contractors. The English version of these Terms prevails over any translation, except where mandatory local law provides otherwise.</p>
+
+<h2 id="contact">20. Contact</h2>
+<p>Questions about these Terms, API keys, billing, security or compliance:</p>
+<p><strong>Dieng &mdash; HTL (Human Trust Layer)</strong><br>
+Email: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a><br>
+Country: Côte d'Ivoire</p>
+<p>For payment, invoice, tax or refund questions, you may also contact Paddle.com Market Ltd. as Merchant of Record, quoting the transaction reference in your receipt.</p>
+</main>
+<footer class="site-footer">
+<p class="footer-nav"><a href="index.html">Dashboard</a> <span class="sep">&middot;</span> <a href="terms.html" aria-current="page">Terms</a> <span class="sep">&middot;</span> <a href="privacy.html">Privacy</a> <span class="sep">&middot;</span> <a href="refund.html">Refunds</a></p>
+<p class="footer-note">X-Trust (Human Trust Layer) &middot; Dieng &mdash; HTL &middot; Payments by Paddle.com Market Ltd. (Merchant of Record)</p>
+</footer>
+</div>
+</body>
+</html>
