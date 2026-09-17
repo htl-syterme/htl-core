@@ -95,26 +95,75 @@ Deno.serve(async (req) => {
 
   const ip = (req.headers.get('x-forwarded-for') || '0.0.0.0').split(',')[0].trim();
 
+  const apiKeyHeader = req.headers.get('x-api-key') ?? '';
+  if (!apiKeyHeader.startsWith('htl_')) {
+    return new Response(null, { status: 204, headers: cors });
+  }
+  const keyHashBytes = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(apiKeyHeader)
+  );
+  const keyHex = Array.from(new Uint8Array(keyHashBytes))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  let keyRow: { id: string; key_prefix: string | null } | null = null;
   try {
-    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_S * 1000).toISOString();
-    const { count: recent } = await withTimeout(
-      sb.from('security_events')
-        .select('id', { count: 'exact', head: true })
-        .eq('event_type', 'hyper_call')
-        .eq('ip', ip)
-        .gte('created_at', windowStart),
+    const { data } = await withTimeout(
+      supabase
+        .from('api_keys')
+        .select('id, key_prefix')
+        .eq('key_hash', '\\x' + keyHex)
+        .maybeSingle(),
       DB_TIMEOUT_MS
     );
+    keyRow = data as any;
+  } catch {
+    keyRow = null;
+  }
+  if (!keyRow) {
+    return new Response(null, { status: 204, headers: cors });
+  }
 
-    if ((recent ?? 0) >= RATE_LIMIT_MAX) {
-      await sb.from('security_events').insert({
-        event_type: 'rate_limit',
-        ip,
-        path: '/hyper-responder',
-        score: 50,
-        details: { window: RATE_LIMIT_WINDOW_S, max: RATE_LIMIT_MAX },
-      });
-      return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: json });
+  const rlKey = 'hyper:' + (keyRow.key_prefix ?? keyRow.id);
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_S * 1000);
+  let rlCount = 0;
+  let rlWindow = new Date(0);
+  try {
+    const { data: rl } = await withTimeout(
+      supabase.from('rate_limits').select('count, window_start').eq('key', rlKey).maybeSingle(),
+      DB_TIMEOUT_MS
+    );
+    if (rl) {
+      rlCount = rl.count ?? 0;
+      rlWindow = new Date(rl.window_start);
+      if (rlWindow < windowStart) {
+        rlCount = 0;
+        rlWindow = new Date();
+      }
+    } else {
+      rlWindow = new Date();
+    }
+  } catch {
+    // fail-open on rate-limit lookup: annotation doctrine, never block on infra hiccup
+  }
+
+  if (rlCount >= RATE_LIMIT_MAX) {
+    await supabase.from('security_events').insert({
+      event_type: 'rate_limit',
+      ip,
+      path: '/hyper-responder',
+      score: 50,
+      details: { window: RATE_LIMIT_WINDOW_S, max: RATE_LIMIT_MAX, key_prefix: keyRow.key_prefix },
+    });
+    return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: json });
+  }
+
+  await supabase.from('rate_limits').upsert({
+    key: rlKey,
+    count: rlCount + 1,
+    window_start: rlWindow.toISOString(),
+  });
     }
 
     const secret = Deno.env.get('HTL_SECRET') ?? '';
