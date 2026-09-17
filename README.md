@@ -28,6 +28,26 @@
 ---
 
 
+
+## Try it live
+
+No signup, no key, no install. One curl:
+
+```bash
+curl -si https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/hyper-responder/demo | grep -i x-trust
+```
+
+You get back a real signed header:
+
+```
+X-Trust: v1.eyJzdWIiOiJkZW1vIiwic2NvcmUiOjAuNDIsImlhdCI6MTc3ODQ1OTI1NiwiZXhwIjoxNzc4NDU5Mzc2LCJub25jZSI6ImUxYjRjYTI3LWQ0YmQtNDZmNi1hOTVhLWQ4YTNmMzI1MmIzMiJ9.<sig>
+```
+
+That is the entire product. A signed per-request score (0..1) that travels with the HTTP request. No CAPTCHA, no KYC, no PII, no blocking. Your backend reads it and decides.
+
+Live counter (public): https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter
+
+
 ## Specification
 
 HTL/1.0 is a formal open specification — the human-presence complement to IETF Web Bot Auth.
