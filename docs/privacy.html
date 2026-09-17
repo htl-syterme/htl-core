@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Privacy Policy — X-Trust (Human Trust Layer)</title>
+<style>
+  :root{--bg:#000;--text:#fff;--muted:#8e8e93;--body:#c7c7cc;--border:rgba(255,255,255,0.1);}
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--body);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:720px;margin:0 auto;padding:40px 20px;}
+  a{color:var(--body);text-decoration:underline;text-decoration-color:rgba(255,255,255,0.35);text-underline-offset:3px;}
+  a:hover{color:#fff;}
+  .site-header{padding-bottom:22px;border-bottom:1px solid var(--border);}
+  .brand{margin:0;color:#fff;font-size:14px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;}
+  .brand span{color:var(--muted);font-weight:400;font-size:13px;letter-spacing:0.04em;text-transform:none;}
+  h1{color:#fff;font-size:clamp(28px,7vw,38px);line-height:1.2;letter-spacing:-0.02em;font-weight:600;margin:32px 0 10px;}
+  .doc-meta{margin:0 0 24px;color:var(--muted);font-size:14px;}
+  .lede{font-size:17px;margin:0 0 18px;}
+  h2{color:#fff;font-size:19px;line-height:1.35;letter-spacing:-0.01em;font-weight:600;margin:44px 0 12px;}
+  p{margin:0 0 14px;}
+  ul{margin:0 0 16px;padding-left:22px;}
+  li{margin:0 0 8px;}
+  strong{color:#fff;font-weight:600;}
+  .callout{border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin:26px 0;background:rgba(255,255,255,0.02);}
+  .callout h2{margin:0 0 12px;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .callout ul,.callout p{margin-bottom:0;}
+  .site-footer{border-top:1px solid var(--border);margin-top:56px;padding-top:22px;}
+  .footer-nav{margin:0 0 12px;font-size:14px;color:var(--muted);}
+  .footer-nav a{color:var(--muted);text-decoration:none;}
+  .footer-nav a:hover{color:#fff;text-decoration:underline;}
+  .footer-nav a[aria-current="page"]{color:#fff;}
+  .footer-note{margin:0;color:var(--muted);font-size:13px;}
+  .sep{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="site-header"><p class="brand">X-Trust <span>Human Trust Layer</span></p></header>
+<main>
+<h1>Privacy Policy</h1>
+<p class="doc-meta">Effective 17 September 2026 &middot; Version 1.0 &middot; Controller: Dieng &mdash; HTL</p>
+<p class="lede">X-Trust is built so that we cannot identify the people behind verification requests. This policy explains what limited data we hold, why we hold it, how long we keep it and what you can ask us to do with it.</p>
+
+<div class="callout">
+<h2>In one minute</h2>
+<ul>
+<li><strong>What we hold:</strong> the buyer email used at checkout, purchase records, hashed API key material, and anonymized verification events (a score and a one-way hash).</li>
+<li><strong>What we never hold:</strong> names, addresses, identity documents, KYC files, biometrics, end-user identities, card numbers or advertising profiles.</li>
+<li><strong>What we never do:</strong> sell personal data, run advertising trackers, or build profiles of people.</li>
+<li><strong>Your controls:</strong> access, correction, deletion, restriction, objection and portability, exercised by one email to <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>.</li>
+</ul>
+</div>
+
+<h2 id="summary">1. Design principle: zero PII, zero KYC</h2>
+<p>Most verification products ask you to hand over personal data. X-Trust is built the other way round: the Service produces a signed human-presence signal without needing to know who anyone is. Our default configuration never receives your end users' names, contact details, documents or biometrics, and we do not ask you for them. We do not perform identity verification, know-your-customer checks, sanctions screening or credit assessment.</p>
+
+<h2 id="controller">2. Who is responsible for your data</h2>
+<p><strong>Dieng &mdash; HTL (Human Trust Layer)</strong>, an independent software vendor based in Côte d'Ivoire, is the data controller for the limited data described in this policy. Contact: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>.</p>
+<p><strong>Paddle.com Market Ltd.</strong> is the Merchant of Record for all purchases and acts as an independent controller of the payment, billing and tax data you give at checkout. We never receive that data. Paddle's own privacy notice governs it; we receive only a limited confirmation (email address, transaction reference, pack purchased, amount, currency, tax country, payment status).</p>
+<p>If you use the Service inside your own product, you are the controller of the data your product collects about your end users, and we act as your service provider for the verification signal. A data processing addendum is available on request.</p>
+
+<h2 id="collect">3. What we collect</h2>
+<p><strong>Buyer email and purchase record.</strong> The email address you provide at checkout, plus the transaction reference, pack size, amount, currency, purchase date, tax country and payment status supplied by Paddle. We use this to issue your API key, meter your balance, provide support and meet accounting obligations.</p>
+<p><strong>API key records.</strong> A key identifier and prefix, a cryptographic hash of the secret, the creation date, the revocation date and the associated pack. The full secret is shown once at issuance; we cannot recover it afterwards.</p>
+<p><strong>Anonymized verification events.</strong> For each billable verification event we record a numeric score, a one-way hash derived from request metadata using a rotating salt, a coarse timestamp, the key identifier and the decision. The hash lets us detect repeated abuse patterns; because the salt rotates, events cannot be reverse-engineered into identities.</p>
+<p><strong>Transient technical data.</strong> Short-lived request metadata such as source IP address, user-agent string, response status and latency. Used for rate limiting, abuse detection, fraud prevention and debugging. Kept in rotating operational logs only.</p>
+<p><strong>Support correspondence.</strong> If you write to us, we keep the email thread and your address so we can answer and keep a record of what was agreed.</p>
+
+<h2 id="not-collect">4. What we never collect</h2>
+<ul>
+<li>No names, postal addresses, phone numbers or government identifiers of your end users.</li>
+<li>No KYC or AML files, no identity documents, no proof of address.</li>
+<li>No biometric data of any kind.</li>
+<li>No card numbers or bank details &mdash; those go directly to Paddle at checkout.</li>
+<li>No advertising or cross-site tracking identifiers.</li>
+<li>No raw request bodies or content of your end users' messages.</li>
+</ul>
+
+<h2 id="cookies">5. Cookies and similar technologies</h2>
+<p>Our pages and API do not use advertising cookies, analytics cookies or third-party trackers. When you pay, you are transferred to Paddle's checkout, where Paddle may set its own cookies to process the payment and prevent card fraud.</p>
+
+<h2 id="why">6. Why we process data, and on what legal basis</h2>
+<ul>
+<li><strong>Contract:</strong> issuing API keys, metering packs, providing support, handling refunds and disputes.</li>
+<li><strong>Legitimate interests:</strong> keeping the Service secure, preventing abuse, fraud and attacks, rate limiting, maintaining backups and improving reliability.</li>
+<li><strong>Legal obligations:</strong> retaining transaction and tax records where law requires it.</li>
+<li><strong>Consent:</strong> where we need it, for example if you ask to receive product updates. You can withdraw consent at any time.</li>
+</ul>
+<p>We comply with Ivorian data protection law, in particular Law No. 2013-450 of 19 June 2013 on the protection of personal data, and we align our practices with the principles of the EU GDPR as a matter of good practice for our international customers.</p>
+
+<h2 id="retention">7. How long we keep it</h2>
+<ul>
+<li><strong>Buyer email and purchase record:</strong> while you hold or use credits, plus up to 24 months for support, dispute and fraud purposes. Tax-relevant records may be retained up to 10 years as required by law.</li>
+<li><strong>API key records:</strong> while the key is active, plus 12 months after revocation.</li>
+<li><strong>Anonymized verification events:</strong> rolling 90 days, then permanently deleted or aggregated.</li>
+<li><strong>Transient technical logs:</strong> maximum 30 days.</li>
+<li><strong>Support correspondence:</strong> up to 36 months from the last message.</li>
+</ul>
+
+<h2 id="sharing">8. Who we share data with</h2>
+<p>We do not sell, rent or trade personal data. We share the minimum necessary with service providers under written data protection terms:</p>
+<ul>
+<li><strong>Paddle.com Market Ltd.</strong> &mdash; payments, invoicing, tax calculation, fraud screening.</li>
+<li><strong>Hosting and infrastructure providers</strong> &mdash; servers, networking and encrypted backups.</li>
+<li><strong>Email delivery providers</strong> &mdash; sending your API key, receipts and service notices.</li>
+<li><strong>Error monitoring and security tooling</strong> &mdash; configured to minimise and scrub personal data.</li>
+</ul>
+<p><strong>Legal requests.</strong> We may disclose data if compelled by law. Because we hold almost nothing, such a request can rarely be answered with personal data.</p>
+<p><strong>Business transfer.</strong> If the Service is sold or merged, the limited data described here may transfer with it. This policy continues to apply.</p>
+
+<h2 id="transfers">9. International transfers</h2>
+<p>We operate from Côte d'Ivoire and use providers whose infrastructure may be located in other countries. Where personal data is transferred across borders, we rely on appropriate safeguards such as standard contractual clauses approved by the European Commission, adequacy decisions, or the provider's equivalent binding commitments, together with encryption in transit.</p>
+
+<h2 id="security">10. Security</h2>
+<ul>
+<li>TLS 1.2 or higher for all traffic.</li>
+<li>Verification results signed with HMAC-SHA256.</li>
+<li>API secrets stored only as cryptographic hashes; secrets are never logged or emailed back.</li>
+<li>Rotating salts on event hashes.</li>
+<li>Least-privilege access for the single operator account, with multi-factor authentication.</li>
+<li>Encrypted backups and monitored infrastructure.</li>
+</ul>
+<p>If a security incident affects your data, we will notify you without undue delay and, where the law requires, the competent supervisory authority within 72 hours of becoming aware.</p>
+
+<h2 id="rights">11. Your rights</h2>
+<p>Subject to applicable law, you may ask us to:</p>
+<ul>
+<li><strong>Access</strong> the personal data we hold about you.</li>
+<li><strong>Correct</strong> inaccurate data.</li>
+<li><strong>Delete</strong> your data, where we are not required to keep it.</li>
+<li><strong>Restrict or object</strong> to certain processing.</li>
+<li><strong>Receive your data</strong> in a portable format.</li>
+<li><strong>Withdraw consent</strong> at any time.</li>
+<li><strong>Complain</strong> to a supervisory authority &mdash; in Côte d'Ivoire, the ARTCI; in the EU, EEA or UK, your local authority.</li>
+</ul>
+<p>Send requests to <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>. We respond within 30 days. We will never ask for an identity document. Note that we cannot look up your individual verification events, because they are anonymised.</p>
+
+<h2 id="automated">12. Scoring and automated processing</h2>
+<p>The Service computes a confidence score about a request, not about a person. The features describe characteristics of a session. We do not build behavioural profiles, we do not sell scores, and we do not make decisions with legal or similarly significant effects about your end users. Any action taken on the basis of a verification result is taken by you, in your own system, under your own policies. We ask customers not to rely on the score as the sole basis for high-stakes decisions.</p>
+
+<h2 id="children">13. Children</h2>
+<p>The Service is intended for business use by adults and is not directed at children. We do not knowingly collect personal data from anyone under 16. If you believe we hold an email address belonging to a child, contact us and we will delete it promptly.</p>
+
+<h2 id="changes">14. Changes to this policy</h2>
+<p>We may update this policy. The current version is always published on this page with a new effective date. For material changes we will give reasonable notice, and at least 14 days where required by law, by email to the buyer address on record or by a prominent notice on our site.</p>
+
+<h2 id="contact">15. Contact</h2>
+<p>Privacy questions, data requests and security reports:</p>
+<p><strong>Dieng &mdash; HTL (Human Trust Layer)</strong><br>
+Email: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a><br>
+Country: Côte d'Ivoire</p>
+<p>Payments, invoices and card data are handled by Paddle.com Market Ltd. as Merchant of Record; please contact Paddle directly for questions about the payment data you provided at checkout.</p>
+</main>
+<footer class="site-footer">
+<p class="footer-nav"><a href="index.html">Dashboard</a> <span class="sep">&middot;</span> <a href="terms.html">Terms</a> <span class="sep">&middot;</span> <a href="privacy.html" aria-current="page">Privacy</a> <span class="sep">&middot;</span> <a href="refund.html">Refunds</a></p>
+<p class="footer-note">X-Trust (Human Trust Layer) &middot; Dieng &mdash; HTL &middot; Payments by Paddle.com Market Ltd. (Merchant of Record)</p>
+</footer>
+</div>
+</body>
+</html>
