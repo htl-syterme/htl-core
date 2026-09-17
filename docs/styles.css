@@ -511,3 +511,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+.footer-social {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.footer-social a {
+  color: #8e8e93;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.footer-social a:hover {
+  color: #ffffff;
+}
