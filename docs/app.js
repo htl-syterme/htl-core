@@ -554,3 +554,42 @@
 
   document.addEventListener('DOMContentLoaded', init);
 })();
+
+  // Shadow Report lookup
+  (function () {
+    const btn = document.getElementById('report-btn');
+    const inp = document.getElementById('report-key');
+    const out = document.getElementById('report-out');
+    if (!btn || !inp || !out) return;
+
+    const REPORT_URL = 'https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/report';
+
+    btn.addEventListener('click', async () => {
+      const key = (inp.value || '').trim();
+      if (!key.startsWith('htl_') || key.length < 20) {
+        out.textContent = 'Invalid key format.';
+        return;
+      }
+      out.textContent = 'Looking up...';
+      try {
+        const res = await fetch(REPORT_URL + '?k=' + encodeURIComponent(key));
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          out.textContent = 'Error: ' + (data.error || res.status);
+          return;
+        }
+        const pct = (data.bot_share * 100).toFixed(1);
+        const total = data.totals.requests || 0;
+        const nm = data.totals.never_moved || 0;
+        const en = data.totals.engaged || 0;
+        out.innerHTML =
+          '<div class="report-card">' +
+          '<div class="report-num">' + pct + '%</div>' +
+          '<div class="report-label">of traffic never moved past 0.30</div>' +
+          '<div class="report-meta">' + nm + ' low / ' + en + ' engaged / ' + total + ' total</div>' +
+          '</div>';
+      } catch (e) {
+        out.textContent = 'Network error.';
+      }
+    });
+  })();
