@@ -90,6 +90,9 @@ A signed HTTP header proving a human was behind the request before it hits your 
     npm install @htl-syterme/htl-core
 ```bash
 pip install htl-verify
+
+> **Full examples:** [FastAPI](docs/examples/fastapi_x_trust.py) · [Express](docs/examples/express_x_trust.js)
+
 ```
 # or via JSR (Deno/Node)
 deno add jsr:@htl-syterme/htl-core
