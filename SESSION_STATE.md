@@ -1,14 +1,14 @@
 # HTL — État de session (17 sept 2026, session Fable)
 
 ## ✅ Déployé sur Supabase (live en prod)
-- hyper-responder : version d'origine (sans les derniers patchs)
+- hyper-responder : kid + time-bound + rate limit par clé + api_key_id
 - trust-counter : live
 - quick-task : version avec hash SHA-256 (déployé plus tôt)
 - honeypot : ban 1h + sec-fetch-dest
 - rotate-htl-secret : version pré-dual-secret
 - security-report : live
 
-## ✅ Codé + commité + poussé (PAS ENCORE DÉPLOYÉ Supabase)
+## ✅ Déployé sur Supabase — TOUT À JOUR
 - hyper-responder : + `api_key_id` + time-bound score + kid lookup + rate limit par clé + fail-open
 - rotate-htl-secret : + dual-secret 5 min overlap (annotation TODO)
 - **report** : Edge Function Shadow Report (nouveau)
@@ -33,11 +33,11 @@
 ### 1. Deploy groupé Supabase (5 fonctions)
 Pour chacune : ouvrir `/dashboard/project/pixmqidaoszxbdxffrxx/functions/<nom>` → Code → Ctrl+A → supprime → colle depuis `raw.githubusercontent.com/htl-syterme/htl-core/main/supabase/functions/<nom>/index.ts` → Deploy updates.
 
-- [ ] hyper-responder
-- [ ] honeypot
-- [ ] quick-task
-- [ ] report (nouveau)
-- [ ] alert (nouveau)
+- [x] hyper-responder
+- [x] honeypot
+- [x] quick-task
+- [x] report
+- [x] alert
 
 ### 2. Tests curl après chaque deploy
 - hyper-responder : `curl -si .../hyper-responder/demo | grep -i x-trust` → header présent
