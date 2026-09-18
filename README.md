@@ -1,7 +1,8 @@
 [![Spec](https://img.shields.io/badge/spec-HTL1.0-black)](./SPEC.md)
 [![npm](https://img.shields.io/npm/v/@htl-syterme/htl-core?color=black)](https://www.npmjs.com/package/@htl-syterme/htl-core)
 [![JSR](https://img.shields.io/badge/JSR-htl--core-black)](https://jsr.io/@htl-syterme/htl-core)
-[![PyPI](https://img.shields.io/pypi/v/htl-verify?color=black)](https://pypi.org/project/htl-verify)
+[![PyPI htl-verify](https://img.shields.io/pypi/v/htl-verify?color=black)](https://pypi.org/project/htl-verify)
+[![PyPI htl-sign](https://img.shields.io/pypi/v/htl-sign?color=black)](https://pypi.org/project/htl-sign)
 [![License: MIT](https://img.shields.io/badge/license-MIT-white.svg)](./LICENSE)
 
 # HTL - Human Trust Layer
@@ -82,7 +83,8 @@ A signed HTTP header proving a human was behind the request before it hits your 
 
     npm install @htl-syterme/htl-core
 ```bash
-pip install htl-verify
+pip install htl-verify   # verify tokens
+pip install htl-sign     # sign tokens
 
 > **Full examples:** [FastAPI](docs/examples/fastapi_x_trust.py) · [Express](docs/examples/express_x_trust.js)
 
