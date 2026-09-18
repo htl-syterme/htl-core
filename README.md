@@ -11,6 +11,7 @@
 ![JSR](https://img.shields.io/badge/JSR-htl--core-black)
 
 ](https://jsr.io/@htl-syterme/htl-core)# HTL — Human Trust Layer
+](https://pypi.org/project/htl-verify)# HTL — Human Trust Layer
 
 **The open standard proving a human is behind your API request.**
 
@@ -87,6 +88,9 @@ A signed HTTP header proving a human was behind the request before it hits your 
 ## Quick Start
 
     npm install @htl-syterme/htl-core
+```bash
+pip install htl-verify
+```
 # or via JSR (Deno/Node)
 deno add jsr:@htl-syterme/htl-core
 
