@@ -1,21 +1,10 @@
-[
+[![Spec](https://img.shields.io/badge/spec-HTL1.0-black)](./SPEC.md)
+[![npm](https://img.shields.io/npm/v/@htl-syterme/htl-core?color=black)](https://www.npmjs.com/package/@htl-syterme/htl-core)
+[![JSR](https://img.shields.io/badge/JSR-htl--core-black)](https://jsr.io/@htl-syterme/htl-core)
+[![PyPI](https://img.shields.io/pypi/v/htl-verify?color=black)](https://pypi.org/project/htl-verify)
+[![License: MIT](https://img.shields.io/badge/license-MIT-white.svg)](./LICENSE)
 
-![Spec](https://img.shields.io/badge/spec-HTL1.0-black)
-
-](./SPEC.md) [
-
-![npm](https://img.shields.io/npm/v/@htl-syterme/htl-core?color=black)
-
-](https://www.npmjs.com/package/@htl-syterme/htl-core) [
-
-![JSR](https://img.shields.io/badge/JSR-htl--core-black)
-
-](https://jsr.io/@htl-syterme/htl-core)
-
-# HTL — Human Trust Layer
-](https://pypi.org/project/htl-verify)
-
-# HTL — Human Trust Layer
+# HTL - Human Trust Layer
 
 **The open standard for signaling how human an API session looks.**
 
