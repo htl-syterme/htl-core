@@ -10,10 +10,14 @@
 
 ![JSR](https://img.shields.io/badge/JSR-htl--core-black)
 
-](https://jsr.io/@htl-syterme/htl-core)# HTL — Human Trust Layer
-](https://pypi.org/project/htl-verify)# HTL — Human Trust Layer
+](https://jsr.io/@htl-syterme/htl-core)
 
-**The open standard proving a human is behind your API request.**
+# HTL — Human Trust Layer
+](https://pypi.org/project/htl-verify)
+
+# HTL — Human Trust Layer
+
+**The open standard for signaling how human an API session looks.**
 
 [
 
