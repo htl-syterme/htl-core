@@ -158,5 +158,48 @@ Country: Côte d'Ivoire</p>
 <p class="footer-note">X-Trust (Human Trust Layer) &middot; Dieng &mdash; HTL &middot; Payments by Paddle.com Market Ltd. (Merchant of Record)</p>
 </footer>
 </div>
+
+    <section class="section">
+      <h2>Annex A — GDPR / Data Protection</h2>
+      <p><strong>Controller:</strong> HTL — Human Trust Layer, Cote d'Ivoire. Contact: diengamine.htl@gmail.com.</p>
+
+      <h3>A.1 Legal basis</h3>
+      <p>Processing relies on legitimate interest (Article 6(1)(f) GDPR) to protect AI infrastructure against automated abuse. No personal data is required to use X-Trust.</p>
+
+      <h3>A.2 Data categories</h3>
+      <ul>
+        <li><strong>Trust score</strong> (float, 0..1) — no identifier attached.</li>
+        <li><strong>Signal hash</strong> (SHA-256 digest, truncated) — irreversible.</li>
+        <li><strong>IP addresses</strong> — never stored raw. Hashed with a daily rotating salt (SHA-256, first 16 hex chars). Salt rotates every 24 hours and old salts are discarded.</li>
+        <li><strong>API keys</strong> — stored as SHA-256 hash only. Prefix stored for display. Raw key never persisted.</li>
+      </ul>
+
+      <h3>A.3 Retention</h3>
+      <ul>
+        <li>Security events: 30 days maximum, purged every 15 minutes by cron.</li>
+        <li>Nonce cache: 120 seconds TTL.</li>
+        <li>IP blacklist: 1 hour auto-expiry.</li>
+        <li>Rate limits: 24 hours rolling window.</li>
+      </ul>
+
+      <h3>A.4 Sub-processors</h3>
+      <ul>
+        <li><strong>Supabase Inc.</strong> — hosting &amp; database. Data Processing Addendum (DPA) in force: <a href="https://supabase.com/legal/dpa">supabase.com/legal/dpa</a>.</li>
+        <li><strong>Paddle.com Market Ltd.</strong> — payment processor of record. Handles all billing data.</li>
+        <li><strong>Resend</strong> — transactional email delivery only.</li>
+      </ul>
+
+      <h3>A.5 Your rights (Articles 15-22 GDPR)</h3>
+      <p>Because X-Trust collects no personally identifiable information, most GDPR rights (access, portability, rectification) cannot be exercised meaningfully — there is no record linking to you. If you believe residual data concerns you, contact <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>. Right to erasure (Article 17): any data qualifying as personal is deleted within 30 days, including from backups.</p>
+
+      <h3>A.6 Data residency</h3>
+      <p>Supabase project hosted in the default region. No transfer outside the sub-processor's infrastructure. No data sold, rented, or shared with third parties.</p>
+
+      <h3>A.7 Security of processing (Article 32)</h3>
+      <p>HMAC-SHA256 signatures, timing-safe comparisons, CORS whitelist, rate limits per API key, nonce anti-replay, database timeout 5s, body size cap 10 KB. Full details in SECURITY.md.</p>
+
+      <p class="muted">Last updated: 2026-09-19</p>
+    </section>
+
 </body>
 </html>
