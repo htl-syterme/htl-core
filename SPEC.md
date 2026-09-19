@@ -72,3 +72,38 @@ The score is an economic signal, not a cryptographic proof of humanity.
 
 Consumers SHOULD treat the score as one signal among several, and MUST NOT
 rely on it as the sole basis for high-stakes decisions.
+
+## Test Vectors
+
+Reference vectors for implementers. All signatures use HMAC-SHA256.
+
+Encoding: base64url without padding (RFC 4648 section 5).
+
+### Vector 1 - valid token
+
+- secret: `htl_spec_test_secret_do_not_use_in_prod`
+- payload: `{"exp":1700000120,"iat":1700000000,"score":0.88,"sub":"spec-user-1"}`
+- token: `v1.eyJleHAiOjE3MDAwMDAxMjAsImlhdCI6MTcwMDAwMDAwMCwic2NvcmUiOjAuODgsInN1YiI6InNwZWMtdXNlci0xIn0.KSsidNfQ5hzwTKXUdWIo_jBw4HoUlTaWoWCtOjClzx8`
+- expected: verify returns payload
+
+### Vector 2 - invalid signature
+
+- secret: `htl_spec_test_secret_do_not_use_in_prod`
+- payload: `{"exp":1700000120,"iat":1700000000,"score":0.88,"sub":"spec-user-1"}`
+- token: `v1.eyJleHAiOjE3MDAwMDAxMjAsImlhdCI6MTcwMDAwMDAwMCwic2NvcmUiOjAuODgsInN1YiI6InNwZWMtdXNlci0xIn0.AAAA`
+- expected: verify returns null
+
+### Vector 3 - wrong secret
+
+- secret: `wrong_secret`
+- payload: `{"exp":1700000120,"iat":1700000000,"score":0.88,"sub":"spec-user-1"}`
+- token: `v1.eyJleHAiOjE3MDAwMDAxMjAsImlhdCI6MTcwMDAwMDAwMCwic2NvcmUiOjAuODgsInN1YiI6InNwZWMtdXNlci0xIn0.KSsidNfQ5hzwTKXUdWIo_jBw4HoUlTaWoWCtOjClzx8`
+- expected: verify returns null
+
+### Vector 4 - score out of range (forged with valid sig)
+
+- secret: `htl_spec_test_secret_do_not_use_in_prod`
+- payload: `{"exp":1700000120,"iat":1700000000,"score":5.0,"sub":"spec-user-1"}`
+- token: `v1.eyJleHAiOjE3MDAwMDAxMjAsImlhdCI6MTcwMDAwMDAwMCwic2NvcmUiOjUuMCwic3ViIjoic3BlYy11c2VyLTEifQ.cT7fg5g5MkCNIaqsL9gN0GR80v8f3b_1KDUFG8KMC1s`
+- expected: verify returns null
+
