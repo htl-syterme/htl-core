@@ -1,0 +1,51 @@
+name: HTL Monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping hyper-responder
+        id: ping
+        run: |
+          HTTP=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+            "https://pixmqidaoszbxdbxffrxx.supabase.co/functions/v1/hyper-responder" \
+            -H "Content-Type: application/json" \
+            -d '{"v":1}' \
+            --max-time 10) || HTTP="000"
+          echo "http_code=$HTTP" >> $GITHUB_OUTPUT
+          if [ "$HTTP" != "200" ]; then
+            echo "status=down" >> $GITHUB_OUTPUT
+          else
+            echo "status=up" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue if down
+        if: steps.ping.outputs.status == 'down'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const http = '${{ steps.ping.outputs.http_code }}';
+            const date = new Date().toISOString();
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const alreadyOpen = open.data.some(i => i.title.includes('HTL DOWN'));
+            if (!alreadyOpen) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'HTL DOWN - ' + date,
+                body: 'Hyper-responder returned HTTP ' + http + ' at ' + date
+              });
+            }
