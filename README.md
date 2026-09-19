@@ -128,7 +128,7 @@ No user data transmitted. No identity. No friction.
 
 ---
 
-## Live Proof
+## Live Counter
 
     curl https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/trust-counter
 
@@ -195,4 +195,4 @@ Built for AI infrastructure that refuses to choose between growth and security.
 
 X-Trust annotates every HTTP request individually.
 120s TTL = automatic continuous re-attestation.
-No checkpoint. No gate. Just proof, per request.
+No checkpoint. No gate. Just signal, per request.
