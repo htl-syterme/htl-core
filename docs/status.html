@@ -88,5 +88,22 @@ async function check() {
 check();
 setInterval(check, 10000);
 </script>
+
+    <script>
+    fetch('status.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('ext-status') || (() => {
+          const e = document.createElement('div');
+          e.id = 'ext-status';
+          e.style.cssText = 'margin-top:20px;padding:12px;border:1px solid rgba(255,255,255,0.1);border-radius:16px;font-family:-apple-system,SF Pro;color:#8e8e93;font-size:12px';
+          document.body.appendChild(e);
+          return e;
+        })();
+        const dot = d.status === 'up' ? '●' : '○';
+        el.innerHTML = dot + ' External monitor — ' + d.status.toUpperCase() + '<br>Last check: ' + d.last_check + ' · HTTP ' + d.http_code;
+      })
+      .catch(() => {});
+    </script>
 </body>
 </html>
