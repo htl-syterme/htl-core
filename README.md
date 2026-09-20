@@ -140,17 +140,15 @@ Returns total live verifications. No API key needed.
 
 ## Pricing
 
-| Plan | Verifications | Price |
-|------|--------------|-------|
-| Starter | 1,000 | $5 |
-| Growth | 10,000 | $50 |
-| Scale | 100,000 | $500 |
+| Plan | Checks | Price |
+|---|---|---|
+| **Free** | 50,000 / month | $0 |
+| Starter | 500,000 | $5 |
+| Growth | 5,000,000 | $50 |
+| Scale | 50,000,000 | $500 |
 
-Pay once. No subscription. Crypto accepted.
+Free tier is generous but capped. No card required. Self-host is always free. Prepaid packs, no subscription.
 
-Get your API key: https://htl-syterme.github.io/htl-core
-
----
 
 ## Founding Partners
 
