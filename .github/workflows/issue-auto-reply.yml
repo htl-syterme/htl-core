@@ -18,12 +18,12 @@ jobs:
             const body = [
               "Thanks for opening this.",
               "",
-              "Context: the maintainer is off-grid until approximately **2026-10-20** (personal reasons). The service runs in autonomous mode — monitoring is active and all endpoints stay up.",
+              "The maintainer is off-grid until around 2026-10-20 for personal reasons. The service remains in autonomous mode, with monitoring active and all endpoints kept online.",
               "",
-              "Your issue will be triaged on return. If it is urgent, please self-host: see `docs/self-host.md`.",
+              "I will triage this issue when I return. For anything that cannot wait, you can run your own instance using docs/self-host.md.",
               "",
-              "If you are reporting an outage, check `docs/status.json` in this repo for the latest external heartbeat."
-            ].join("\n");
+              "For outage reports, docs/status.json contains the latest external heartbeat."
+            ].join("\\n");
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
