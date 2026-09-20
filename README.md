@@ -7,7 +7,7 @@
 
 # HTL - Human Trust Layer
 
-> **Maintainer notice** — I am off-grid for ~30 days starting 2026-09-20 (personal). The service runs in autonomous mode: monitoring is active, all endpoints stay up, X-Trust signatures continue. Human support is suspended until my return. New issues will be acknowledged automatically and triaged on return. Self-host instructions in `docs/self-host.md` if you need to deploy independently.
+> **Maintainer notice** - I will be off-grid for about 30 days from 2026-09-20 for personal reasons. X-Trust will continue running in autonomous mode: monitoring remains active, endpoints stay available, and signatures continue to be issued. Human support will be paused until I return. New issues will be acknowledged automatically and reviewed when I am back. If you need an independent deployment in the meantime, see `docs/self-host.md`.
 
 **The open standard for signaling how human an API session looks.**
 
@@ -147,7 +147,7 @@ Returns total live verifications. No API key needed.
 | Growth | 5,000,000 | $50 |
 | Scale | 50,000,000 | $500 |
 
-Free tier is generous but capped. No card required. Self-host is always free. Prepaid packs, no subscription.
+The free tier is capped but includes enough usage for evaluation and small deployments. No card is required. Self-hosting is always free. Usage is prepaid, with no subscription.
 
 
 ## Founding Partners
