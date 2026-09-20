@@ -157,5 +157,39 @@ const { trusted, score } = await requireTrust(req, secret);</code>
 </footer>
 
 <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
+    <section class="section" id="design-partner">
+      <h2>Design Partner Program</h2>
+      <p class="muted">Five spots. No email list, no marketing. If your stack fits, I'll reply personally.</p>
+      <form id="dp-form" style="display:flex;flex-direction:column;gap:12px;max-width:520px;margin-top:16px">
+        <input name="email" type="email" required placeholder="work email" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-family:inherit;font-size:14px">
+        <input name="company" placeholder="company / project" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-family:inherit;font-size:14px">
+        <input name="volume" placeholder="monthly API requests (order of magnitude)" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-family:inherit;font-size:14px">
+        <input name="stack" placeholder="stack (Node, Python, Go, gateway...)" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-family:inherit;font-size:14px">
+        <textarea name="missing_signal" placeholder="what signal is missing in your current setup?" rows="3" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+        <button type="submit" style="background:#fff;color:#000;border:none;border-radius:12px;padding:14px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Request access</button>
+        <p id="dp-msg" class="muted" style="font-size:13px;margin:0"></p>
+      </form>
+    </section>
+    <script>
+    document.getElementById('dp-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const msg = document.getElementById('dp-msg');
+      msg.textContent = 'sending...';
+      const data = Object.fromEntries(new FormData(f).entries());
+      try {
+        const r = await fetch('https://pixmqidaoszbxdbxffrxx.supabase.co/functions/v1/design-partner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const j = await r.json();
+        if (j.ok) { msg.textContent = 'received. I\'ll reply within a few days.'; f.reset(); }
+        else { msg.textContent = 'error: ' + (j.error || 'unknown'); }
+      } catch { msg.textContent = 'network error'; }
+    });
+    </script>
+
 </body>
 </html>
