@@ -6,6 +6,27 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
+const DAILY_GLOBAL_CAP = 50000;
+
+async function checkDailyCap(supabase: any): Promise<boolean> {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = 'global:' + today;
+  const { data } = await supabase
+    .from('rate_limits')
+    .select('count')
+    .eq('key', key)
+    .maybeSingle();
+  const count = data?.count ?? 0;
+  if (count >= DAILY_GLOBAL_CAP) return false;
+  await supabase.from('rate_limits').upsert(
+    { key, count: count + 1, window_start: new Date().toISOString() },
+    { onConflict: 'key' }
+  );
+  return true;
+}
+
+
+
 const CORS_ORIGIN = 'https://htl-syterme.github.io';
 const cors = {
   'Access-Control-Allow-Origin': CORS_ORIGIN,
@@ -33,6 +54,17 @@ async function verify(
   const payloadB64 = parts[1];
   const sigB64 = parts[2];
   try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      );
+      const capOk = await checkDailyCap(supabase);
+      if (!capOk) {
+        return new Response(JSON.stringify({ recorded: false, trusted: false, status: 'unavailable' }), {
+          status: 200,
+          headers: { ...json, 'X-Trust': 'unavailable' }
+        });
+      }
     const key = await crypto.subtle.importKey(
       'raw',
       new TextEncoder().encode(secret),
