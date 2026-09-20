@@ -1,7 +1,7 @@
 /**
  * hyper-responder - verifies an X-Trust HMAC-SHA256 header and records
  * the trust event. Public endpoint (Verify JWT = OFF).
- * Guards: CORS whitelist, rate limit per IP, nonce anti-replay, DB timeout.
+ * Guards: CORS whitelist, daily cap, rate limit per key, nonce anti-replay, DB timeout.
  */
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -11,11 +11,7 @@ const DAILY_GLOBAL_CAP = 50000;
 async function checkDailyCap(supabase: any): Promise<boolean> {
   const today = new Date().toISOString().slice(0, 10);
   const key = 'global:' + today;
-  const { data } = await supabase
-    .from('rate_limits')
-    .select('count')
-    .eq('key', key)
-    .maybeSingle();
+  const { data } = await supabase.from('rate_limits').select('count').eq('key', key).maybeSingle();
   const count = data?.count ?? 0;
   if (count >= DAILY_GLOBAL_CAP) return false;
   await supabase.from('rate_limits').upsert(
@@ -24,34 +20,11 @@ async function checkDailyCap(supabase: any): Promise<boolean> {
   );
   return true;
 }
-
-
-
-const DAILY_GLOBAL_CAP = 50000;
-
-async function checkDailyCap(supabase: any): Promise<boolean> {
-  const today = new Date().toISOString().slice(0, 10);
-  const key = 'global:' + today;
-  const { data } = await supabase
-    .from('rate_limits')
-    .select('count')
-    .eq('key', key)
-    .maybeSingle();
-  const count = data?.count ?? 0;
-  if (count >= DAILY_GLOBAL_CAP) return false;
-  await supabase.from('rate_limits').upsert(
-    { key, count: count + 1, window_start: new Date().toISOString() },
-    { onConflict: 'key' }
-  );
-  return true;
-}
-
-
 
 const CORS_ORIGIN = 'https://htl-syterme.github.io';
 const cors = {
   'Access-Control-Allow-Origin': CORS_ORIGIN,
-  'Access-Control-Allow-Headers': 'content-type, x-trust',
+  'Access-Control-Allow-Headers': 'content-type, x-trust, x-api-key',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 const json = { ...cors, 'Content-Type': 'application/json' };
@@ -75,48 +48,6 @@ async function verify(
   const payloadB64 = parts[1];
   const sigB64 = parts[2];
   try {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-      const capOk = await checkDailyCap(supabase);
-      if (!capOk) {
-        return new Response(JSON.stringify({ recorded: false, trusted: false, status: 'unavailable' }), {
-          status: 200,
-          headers: { ...json, 'X-Trust': 'unavailable' }
-        });
-      }
-
-      // API-KEY-SOFT-CHECK: if no X-API-Key, apply stricter IP-based rate limit.
-      const apiKey = req.headers.get('x-api-key') ?? '';
-      if (!apiKey) {
-        const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-        const now = new Date();
-        const windowKey = 'anon:' + ip + ':' + now.toISOString().slice(0, 13);
-        const { data: rl } = await supabase.from('rate_limits').select('count').eq('key', windowKey).maybeSingle();
-        const count = rl?.count ?? 0;
-        if (count >= 30) {
-          return new Response(JSON.stringify({ recorded: false, trusted: false, status: 'rate_limited' }), {
-            status: 200,
-            headers: { ...json, 'X-Trust': 'unavailable' }
-          });
-        }
-        await supabase.from('rate_limits').upsert(
-          { key: windowKey, count: count + 1, window_start: now.toISOString() },
-          { onConflict: 'key' }
-        );
-      }
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-      const capOk = await checkDailyCap(supabase);
-      if (!capOk) {
-        return new Response(JSON.stringify({ recorded: false, trusted: false, status: 'unavailable' }), {
-          status: 200,
-          headers: { ...json, 'X-Trust': 'unavailable' }
-        });
-      }
     const key = await crypto.subtle.importKey(
       'raw',
       new TextEncoder().encode(secret),
@@ -131,7 +62,6 @@ async function verify(
       new TextEncoder().encode(payloadB64)
     );
     if (!ok) return null;
-
     const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(payloadB64)));
     const now = Math.floor(Date.now() / 1000);
     if (typeof payload.score !== 'number' || payload.score < 0 || payload.score > 1) return null;
@@ -166,94 +96,82 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'method_not_allowed' }), { status: 405, headers: json });
   }
-
   const cl = parseInt(req.headers.get('content-length') || '0', 10);
   if (cl > MAX_BODY_BYTES) {
     return new Response(JSON.stringify({ error: 'payload_too_large' }), { status: 413, headers: json });
   }
-
-  const sb = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
-
-  const ip = (req.headers.get('x-forwarded-for') || '0.0.0.0').split(',')[0].trim();
-
-  const apiKeyHeader = req.headers.get('x-api-key') ?? '';
-  if (!apiKeyHeader.startsWith('htl_')) {
-    return new Response(null, { status: 204, headers: cors });
-  }
-  const keyHashBytes = await crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(apiKeyHeader)
-  );
-  const keyHex = Array.from(new Uint8Array(keyHashBytes))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-
-  let keyRow: { id: string; key_prefix: string | null } | null = null;
   try {
-    const { data } = await withTimeout(
-      supabase
-        .from('api_keys')
-        .select('id, key_prefix')
-        .eq('key_hash', '\\x' + keyHex)
-        .maybeSingle(),
-      DB_TIMEOUT_MS
+    const sb = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
-    keyRow = data as any;
-  } catch {
-    keyRow = null;
-  }
-  if (!keyRow) {
-    return new Response(null, { status: 204, headers: cors });
-  }
-
-  const rlKey = 'hyper:' + (keyRow.key_prefix ?? keyRow.id);
-  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_S * 1000);
-  let rlCount = 0;
-  let rlWindow = new Date(0);
-  try {
-    const { data: rl } = await withTimeout(
-      supabase.from('rate_limits').select('count, window_start').eq('key', rlKey).maybeSingle(),
-      DB_TIMEOUT_MS
-    );
-    if (rl) {
-      rlCount = rl.count ?? 0;
-      rlWindow = new Date(rl.window_start);
-      if (rlWindow < windowStart) {
-        rlCount = 0;
+    const capOk = await checkDailyCap(sb);
+    if (!capOk) {
+      return new Response(
+        JSON.stringify({ recorded: false, trusted: false, status: 'unavailable' }),
+        { status: 200, headers: { ...json, 'X-Trust': 'unavailable' } }
+      );
+    }
+    const ip = (req.headers.get('x-forwarded-for') || '0.0.0.0').split(',')[0].trim();
+    const apiKeyHeader = req.headers.get('x-api-key') ?? '';
+    if (!apiKeyHeader.startsWith('htl_')) {
+      return new Response(null, { status: 204, headers: cors });
+    }
+    const keyHashBytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(apiKeyHeader));
+    const keyHex = Array.from(new Uint8Array(keyHashBytes)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    let keyRow: { id: string; key_prefix: string | null } | null = null;
+    try {
+      const { data } = await withTimeout(
+        sb.from('api_keys').select('id, key_prefix').eq('key_hash', '\\x' + keyHex).maybeSingle(),
+        DB_TIMEOUT_MS
+      );
+      keyRow = data as any;
+    } catch {
+      keyRow = null;
+    }
+    if (!keyRow) {
+      return new Response(null, { status: 204, headers: cors });
+    }
+    const rlKey = 'hyper:' + (keyRow.key_prefix ?? keyRow.id);
+    const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_S * 1000);
+    let rlCount = 0;
+    let rlWindow = new Date(0);
+    try {
+      const { data: rl } = await withTimeout(
+        sb.from('rate_limits').select('count, window_start').eq('key', rlKey).maybeSingle(),
+        DB_TIMEOUT_MS
+      );
+      if (rl) {
+        rlCount = rl.count ?? 0;
+        rlWindow = new Date(rl.window_start);
+        if (rlWindow < windowStart) {
+          rlCount = 0;
+          rlWindow = new Date();
+        }
+      } else {
         rlWindow = new Date();
       }
-    } else {
-      rlWindow = new Date();
+    } catch {
+      // fail-open
     }
-  } catch {
-    // fail-open on rate-limit lookup: annotation doctrine, never block on infra hiccup
-  }
-
-  if (rlCount >= RATE_LIMIT_MAX) {
-    await supabase.from('security_events').insert({
-      event_type: 'rate_limit',
-      ip,
-      path: '/hyper-responder',
-      score: 50,
-      details: { window: RATE_LIMIT_WINDOW_S, max: RATE_LIMIT_MAX, key_prefix: keyRow.key_prefix },
+    if (rlCount >= RATE_LIMIT_MAX) {
+      await sb.from('security_events').insert({
+        event_type: 'rate_limit',
+        ip,
+        path: '/hyper-responder',
+        score: 50,
+        details: { window: RATE_LIMIT_WINDOW_S, max: RATE_LIMIT_MAX, key_prefix: keyRow.key_prefix },
+      });
+      return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: json });
+    }
+    await sb.from('rate_limits').upsert({
+      key: rlKey,
+      count: rlCount + 1,
+      window_start: rlWindow.toISOString(),
     });
-    return new Response(JSON.stringify({ error: 'rate_limit' }), { status: 429, headers: json });
-  }
-
-  await supabase.from('rate_limits').upsert({
-    key: rlKey,
-    count: rlCount + 1,
-    window_start: rlWindow.toISOString(),
-  });
-    }
-
     const token = req.headers.get('x-trust') ?? '';
-    let payload = null;
+    let payload: any = null;
     if (token) {
-      // Peek kid from payload without verifying (safe: string only, no eval)
       let kid = 'v1';
       try {
         const parts = token.split('.');
@@ -262,7 +180,7 @@ Deno.serve(async (req) => {
           if (typeof decoded.kid === 'string') kid = decoded.kid;
         }
       } catch {
-        // malformed, falls through to fallback
+        // malformed
       }
       let secret = '';
       if (kid === 'v1') {
@@ -270,19 +188,18 @@ Deno.serve(async (req) => {
       } else {
         try {
           const { data: k } = await withTimeout(
-            supabase.from('signing_keys').select('secret, valid_until').eq('kid', kid).maybeSingle(),
+            sb.from('signing_keys').select('secret, valid_until').eq('kid', kid).maybeSingle(),
             DB_TIMEOUT_MS
           );
           if (k && (!k.valid_until || new Date(k.valid_until) > new Date())) {
             secret = k.secret;
           }
         } catch {
-          // DB down: fallback below
+          // fallback
         }
       }
       payload = secret ? await verify(token, secret) : null;
     }
-
     try {
       await sb.from('security_events').insert({
         event_type: 'hyper_call',
@@ -294,23 +211,16 @@ Deno.serve(async (req) => {
     } catch {
       // non-blocking
     }
-
     if (!payload) {
       return new Response(JSON.stringify({ recorded: false, trusted: false }), { headers: json });
     }
-
-    // Time-bound the score: growth is capped by wall-clock time since issuance,
-    // so a bot must hold a session for ~90s to reach 0.9. Makes fabrication
-    // economically proportional to time, per SPEC Threat Model.
     const elapsed = Math.floor(Date.now() / 1000) - payload.iat;
     const maxReachable = 0.30 + 0.10 * Math.floor(Math.max(0, elapsed) / 15);
     const effectiveScore = Math.min(payload.score, maxReachable);
-
     if (payload.nonce) {
       const { error: nonceErr } = await sb
         .from('nonce_cache')
         .insert({ nonce: payload.nonce, expires_at: new Date(Date.now() + 120000).toISOString() });
-
       if (nonceErr) {
         await sb.from('security_events').insert({
           event_type: 'replay_nonce',
@@ -322,24 +232,18 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'replay' }), { status: 429, headers: json });
       }
     }
-
     const digest = await crypto.subtle.digest(
       'SHA-256',
       new TextEncoder().encode(JSON.stringify({ sub: payload.sub, score: payload.score }))
     );
-    const signalHash = Array.from(new Uint8Array(digest).slice(0, 8))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-
+    const signalHash = Array.from(new Uint8Array(digest).slice(0, 8)).map((b) => b.toString(16).padStart(2, '0')).join('');
     const { error: dbErr } = await withTimeout(
-      sb.from('trust_events').insert({ trust_score: payload.score, signal_hash: signalHash }),, api_key_id: keyRow.id })
+      sb.from('trust_events').insert({ trust_score: payload.score, signal_hash: signalHash }),
       DB_TIMEOUT_MS
     );
-
     if (dbErr) {
       return new Response(JSON.stringify({ recorded: false, error: 'db' }), { status: 500, headers: json });
     }
-
     return new Response(
       JSON.stringify({ recorded: true, trusted: true, score: effectiveScore, raw_score: payload.score }),
       { headers: json }
