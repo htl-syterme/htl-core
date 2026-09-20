@@ -7,6 +7,8 @@
 
 # HTL - Human Trust Layer
 
+> **Maintainer notice** — I am off-grid for ~30 days starting 2026-09-20 (personal). The service runs in autonomous mode: monitoring is active, all endpoints stay up, X-Trust signatures continue. Human support is suspended until my return. New issues will be acknowledged automatically and triaged on return. Self-host instructions in `docs/self-host.md` if you need to deploy independently.
+
 **The open standard for signaling how human an API session looks.**
 
 [
