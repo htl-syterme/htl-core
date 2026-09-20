@@ -1,0 +1,32 @@
+name: Issue auto-reply (maintainer away)
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  reply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-reply
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              "Thanks for opening this.",
+              "",
+              "Context: the maintainer is off-grid until approximately **2026-10-20** (personal reasons). The service runs in autonomous mode — monitoring is active and all endpoints stay up.",
+              "",
+              "Your issue will be triaged on return. If it is urgent, please self-host: see `docs/self-host.md`.",
+              "",
+              "If you are reporting an outage, check `docs/status.json` in this repo for the latest external heartbeat."
+            ].join("\n");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
