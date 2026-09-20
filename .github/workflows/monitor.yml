@@ -6,26 +6,31 @@ on:
   workflow_dispatch:
 
 permissions:
+  contents: write
   issues: write
-  contents: read
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Ping hyper-responder
         id: ping
         run: |
           HTTP=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
-            "https://pixmqidaoszbxdbxffrxx.supabase.co/functions/v1/hyper-responder" \
+            "https://pixmqidaoszxbdxffrxx.supabase.co/functions/v1/hyper-responder" \
             -H "Content-Type: application/json" \
             -d '{"v":1}' \
             --max-time 10) || HTTP="000"
           echo "http_code=$HTTP" >> $GITHUB_OUTPUT
-          if [ "$HTTP" != "200" ]; then
-            echo "status=down" >> $GITHUB_OUTPUT
-          else
+          if [ "$HTTP" = "200" ] || [ "$HTTP" = "204" ]; then
             echo "status=up" >> $GITHUB_OUTPUT
+          else
+            echo "status=down" >> $GITHUB_OUTPUT
           fi
 
       - name: Write docs/status.json
@@ -35,7 +40,8 @@ jobs:
           TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           HTTP="${{ steps.ping.outputs.http_code }}"
           STATUS="${{ steps.ping.outputs.status }}"
-          echo "{\"last_check\":\"$TS\",\"http_code\":\"$HTTP\",\"status\":\"$STATUS\"}" > docs/status.json
+          printf '{"last_check":"%s","http_code":"%s","status":"%s"}' "$TS" "$HTTP" "$STATUS" > docs/status.json
+          cat docs/status.json
 
       - name: Commit status.json
         if: always()
@@ -43,8 +49,10 @@ jobs:
           git config user.name "htl-monitor"
           git config user.email "htl-monitor@users.noreply.github.com"
           git add docs/status.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore(monitor): update status.json"
-          git push || true
+          git diff --quiet && git diff --staged --quiet && echo "no change" && exit 0
+          git commit -m "chore(monitor): update status.json [skip ci]"
+          git pull --rebase origin main || true
+          git push origin main || echo "push failed (non-blocking)"
 
       - name: Create issue if down
         if: steps.ping.outputs.status == 'down'
@@ -58,8 +66,8 @@ jobs:
               repo: context.repo.repo,
               state: 'open'
             });
-            const alreadyOpen = open.data.some(i => i.title.includes('HTL DOWN'));
-            if (!alreadyOpen) {
+            const exists = open.data.some(i => i.title.includes('HTL DOWN'));
+            if (!exists) {
               await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
