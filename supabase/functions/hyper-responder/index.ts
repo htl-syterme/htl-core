@@ -86,6 +86,26 @@ async function verify(
           headers: { ...json, 'X-Trust': 'unavailable' }
         });
       }
+
+      // API-KEY-SOFT-CHECK: if no X-API-Key, apply stricter IP-based rate limit.
+      const apiKey = req.headers.get('x-api-key') ?? '';
+      if (!apiKey) {
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+        const now = new Date();
+        const windowKey = 'anon:' + ip + ':' + now.toISOString().slice(0, 13);
+        const { data: rl } = await supabase.from('rate_limits').select('count').eq('key', windowKey).maybeSingle();
+        const count = rl?.count ?? 0;
+        if (count >= 30) {
+          return new Response(JSON.stringify({ recorded: false, trusted: false, status: 'rate_limited' }), {
+            status: 200,
+            headers: { ...json, 'X-Trust': 'unavailable' }
+          });
+        }
+        await supabase.from('rate_limits').upsert(
+          { key: windowKey, count: count + 1, window_start: now.toISOString() },
+          { onConflict: 'key' }
+        );
+      }
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL')!,
         Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!

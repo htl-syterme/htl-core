@@ -1,0 +1,49 @@
+name: Watchdog
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  issues: write
+
+jobs:
+  check-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check monitor freshness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'monitor.yml',
+              per_page: 5
+            });
+            const recent = runs.data.workflow_runs[0];
+            if (!recent) {
+              console.log('no runs found');
+              return;
+            }
+            const ageMs = Date.now() - new Date(recent.updated_at).getTime();
+            const ageMin = Math.round(ageMs / 60000);
+            console.log('last monitor run: ' + ageMin + ' min ago, status=' + recent.conclusion);
+            if (ageMin > 60 || recent.conclusion !== 'success') {
+              const open = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              const exists = open.data.some(i => i.title.includes('WATCHDOG'));
+              if (!exists) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: 'WATCHDOG - monitor.yml may be down (' + ageMin + ' min)',
+                  body: 'Last monitor run: ' + recent.updated_at + '\nStatus: ' + recent.conclusion + '\nAge: ' + ageMin + ' minutes.'
+                });
+              }
+            }
