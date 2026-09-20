@@ -1,0 +1,46 @@
+name: DB Backup
+
+on:
+  schedule:
+    - cron: '0 4 */2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: backups
+          fetch-depth: 1
+        continue-on-error: true
+
+      - name: Checkout main if backups branch absent
+        run: |
+          if [ ! -f .git/HEAD ]; then
+            git clone https://github.com/${{ github.repository }}.git .
+            git checkout --orphan backups || true
+          fi
+
+      - name: Fetch backup
+        run: |
+          mkdir -p backups
+          TS=$(date -u +"%Y-%m-%d")
+          HTTP=$(curl -sS -o "backups/backup-$TS.json" -w "%{http_code}" \
+            "https://pixmqidaoszbxdbxffrxx.supabase.co/functions/v1/backup" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            --max-time 30)
+          echo "HTTP=$HTTP"
+          head -c 200 "backups/backup-$TS.json" || true
+
+      - name: Commit
+        run: |
+          git config user.name "htl-backup"
+          git config user.email "htl-backup@users.noreply.github.com"
+          git add backups/
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m "chore(backup): daily snapshot $(date -u +%Y-%m-%d)"
+          git push origin HEAD:backups || git push -u origin HEAD:backups
