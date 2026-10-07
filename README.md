@@ -4,6 +4,7 @@
 [![PyPI htl-verify](https://img.shields.io/pypi/v/htl-verify?color=black)](https://pypi.org/project/htl-verify)
 [![PyPI htl-sign](https://img.shields.io/pypi/v/htl-sign?color=black)](https://pypi.org/project/htl-sign)
 [![License: MIT](https://img.shields.io/badge/license-MIT-white.svg)](./LICENSE)
+[![Attack tests](https://img.shields.io/badge/attack%20tests-20%20passing-brightgreen)](./ATTACKS.md)
 
 # HTL - Human Trust Layer
 
