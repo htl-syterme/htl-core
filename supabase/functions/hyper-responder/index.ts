@@ -217,17 +217,22 @@ Deno.serve(async (req) => {
     const elapsed = Math.floor(Date.now() / 1000) - payload.iat;
     const maxReachable = 0.30 + 0.10 * Math.floor(Math.max(0, elapsed) / 15);
     const effectiveScore = Math.min(payload.score, maxReachable);
-    if (payload.nonce) {
-      const { error: nonceErr } = await sb
+    const nonceVal = (payload as any).jti || payload.nonce;
+    if (nonceVal) {
+      const { data: ins, error: nonceErr } = await sb
         .from('nonce_cache')
-        .insert({ nonce: payload.nonce, expires_at: new Date(Date.now() + 120000).toISOString() });
-      if (nonceErr) {
+        .upsert(
+          { nonce: nonceVal, expires_at: new Date(Date.now() + 120000).toISOString() },
+          { onConflict: 'nonce', ignoreDuplicates: true }
+        )
+        .select();
+      if (nonceErr || !ins || ins.length === 0) {
         await sb.from('security_events').insert({
           event_type: 'replay_nonce',
           ip,
           path: '/hyper-responder',
           score: 80,
-          details: { nonce: payload.nonce },
+          details: { nonce: nonceVal },
         }).then(() => {}, () => {});
         return new Response(JSON.stringify({ error: 'replay' }), { status: 429, headers: json });
       }
