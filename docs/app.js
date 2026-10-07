@@ -514,7 +514,13 @@
     document.body.appendChild(jsr);
   };
 
-  /* ------------------------------------------------------------------ *
+  const init = () => {
+    setupCounter();
+    setupSparkline();
+    setupBehavioralDemo();
+    setupDemoSession();
+    setupPresenceDecay();
+    setupOpenSourceFootprint();
   };
 
   document.addEventListener('DOMContentLoaded', init);
