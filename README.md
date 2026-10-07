@@ -68,7 +68,7 @@ Your infrastructure still cannot tell a real user from a bot farm without a CAPT
 
 ## The Solution: X-Trust
 
-A signed HTTP header proving a human was behind the request before it hits your LLM.
+A signed HTTP header signaling how human a session looks, before it hits your LLM.
 
 - Zero KYC — no ID, no credit card, no friction
 - Zero PII — no personal data, GDPR-native
@@ -109,7 +109,7 @@ deno add jsr:@htl-syterme/htl-core
     app.post("/chat", async (req, res) => {
       const { trusted, score } = await requireTrust(req, process.env.HTL_SECRET);
       const response = await callLLM(req.body.prompt);
-      res.json({ response, human_verified: trusted });
+      res.json({ response, human_signal: trusted });
     });
 
 ### Middleware
