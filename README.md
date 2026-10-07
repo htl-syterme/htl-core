@@ -138,18 +138,6 @@ Returns total live verifications. No API key needed.
 
 ---
 
-## Pricing
-
-| Plan | Checks | Price |
-|---|---|---|
-| **Free** | 50,000 / month | $0 |
-| Starter | 500,000 | $5 |
-| Growth | 5,000,000 | $50 |
-| Scale | 50,000,000 | $500 |
-
-The free tier is capped but includes enough usage for evaluation and small deployments. No card is required. Self-hosting is always free. Usage is prepaid, with no subscription.
-
-
 ## Founding Partners
 
 We are selecting 5 AI infrastructure startups to integrate X-Trust before public scale.
