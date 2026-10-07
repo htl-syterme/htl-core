@@ -21,7 +21,7 @@ function b64urlDecode(str: string): string {
 export function generateTrustToken(
   payload: Omit<TrustPayload, 'iat' | 'exp'>,
   secret: string,
-  ttlSeconds = 60
+  ttlSeconds = 120
 ): string {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ttlSeconds;
