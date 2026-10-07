@@ -74,7 +74,7 @@ A signed HTTP header proving a human was behind the request before it hits your 
 - Zero PII — no personal data, GDPR-native
 - Zero GAFAM — open standard, self-hostable
 - 3 lines of code — integrate in minutes
-- $0.005/verification — cheaper than one wasted LLM call
+ - open source
 - Complements Web Bot Auth — not a replacement
 
 **Philosophy: Annotate, never block.**
