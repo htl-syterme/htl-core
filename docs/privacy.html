@@ -58,11 +58,11 @@
 
 <h2 id="controller">2. Who is responsible for your data</h2>
 <p><strong>Dieng &mdash; HTL (Human Trust Layer)</strong>, an independent software vendor based in Côte d'Ivoire, is the data controller for the limited data described in this policy. Contact: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a>.</p>
-<p><strong>Paddle.com Market Ltd.</strong> is the Merchant of Record for all purchases and acts as an independent controller of the payment, billing and tax data you give at checkout. We never receive that data. Paddle's own privacy notice governs it; we receive only a limited confirmation (email address, transaction reference, pack purchased, amount, currency, tax country, payment status).</p>
+
 <p>If you use the Service inside your own product, you are the controller of the data your product collects about your end users, and we act as your service provider for the verification signal. A data processing addendum is available on request.</p>
 
 <h2 id="collect">3. What we collect</h2>
-<p><strong>Buyer email and purchase record.</strong> The email address you provide at checkout, plus the transaction reference, pack size, amount, currency, purchase date, tax country and payment status supplied by Paddle. We use this to issue your API key, meter your balance, provide support and meet accounting obligations.</p>
+
 <p><strong>API key records.</strong> A key identifier and prefix, a cryptographic hash of the secret, the creation date, the revocation date and the associated pack. The full secret is shown once at issuance; we cannot recover it afterwards.</p>
 <p><strong>Anonymized verification events.</strong> For each billable verification event we record a numeric score, a one-way hash derived from request metadata using a rotating salt, a coarse timestamp, the key identifier and the decision. The hash lets us detect repeated abuse patterns; because the salt rotates, events cannot be reverse-engineered into identities.</p>
 <p><strong>Transient technical data.</strong> Short-lived request metadata such as source IP address, user-agent string, response status and latency. Used for rate limiting, abuse detection, fraud prevention and debugging. Kept in rotating operational logs only.</p>
@@ -73,17 +73,17 @@
 <li>No names, postal addresses, phone numbers or government identifiers of your end users.</li>
 <li>No KYC or AML files, no identity documents, no proof of address.</li>
 <li>No biometric data of any kind.</li>
-<li>No card numbers or bank details &mdash; those go directly to Paddle at checkout.</li>
+
 <li>No advertising or cross-site tracking identifiers.</li>
 <li>No raw request bodies or content of your end users' messages.</li>
 </ul>
 
 <h2 id="cookies">5. Cookies and similar technologies</h2>
-<p>Our pages and API do not use advertising cookies, analytics cookies or third-party trackers. When you pay, you are transferred to Paddle's checkout, where Paddle may set its own cookies to process the payment and prevent card fraud.</p>
+
 
 <h2 id="why">6. Why we process data, and on what legal basis</h2>
 <ul>
-<li><strong>Contract:</strong> issuing API keys, metering packs, providing support, handling refunds and disputes.</li>
+<li><strong>Contract:</strong> issuing API keys, providing support.</li>
 <li><strong>Legitimate interests:</strong> keeping the Service secure, preventing abuse, fraud and attacks, rate limiting, maintaining backups and improving reliability.</li>
 <li><strong>Legal obligations:</strong> retaining transaction and tax records where law requires it.</li>
 <li><strong>Consent:</strong> where we need it, for example if you ask to receive product updates. You can withdraw consent at any time.</li>
@@ -102,7 +102,7 @@
 <h2 id="sharing">8. Who we share data with</h2>
 <p>We do not sell, rent or trade personal data. We share the minimum necessary with service providers under written data protection terms:</p>
 <ul>
-<li><strong>Paddle.com Market Ltd.</strong> &mdash; payments, invoicing, tax calculation, fraud screening.</li>
+
 <li><strong>Hosting and infrastructure providers</strong> &mdash; servers, networking and encrypted backups.</li>
 <li><strong>Email delivery providers</strong> &mdash; sending your API key, receipts and service notices.</li>
 <li><strong>Error monitoring and security tooling</strong> &mdash; configured to minimise and scrub personal data.</li>
@@ -151,11 +151,10 @@
 <p><strong>Dieng &mdash; HTL (Human Trust Layer)</strong><br>
 Email: <a href="mailto:diengamine.htl@gmail.com">diengamine.htl@gmail.com</a><br>
 Country: Côte d'Ivoire</p>
-<p>Payments, invoices and card data are handled by Paddle.com Market Ltd. as Merchant of Record; please contact Paddle directly for questions about the payment data you provided at checkout.</p>
 </main>
 <footer class="site-footer">
-<p class="footer-nav"><a href="index.html">Dashboard</a> <span class="sep">&middot;</span> <a href="terms.html">Terms</a> <span class="sep">&middot;</span> <a href="privacy.html" aria-current="page">Privacy</a> <span class="sep">&middot;</span> <a href="refund.html">Refunds</a></p>
-<p class="footer-note">X-Trust (Human Trust Layer) &middot; Dieng &mdash; HTL &middot; Payments by Paddle.com Market Ltd. (Merchant of Record)</p>
+<p class="footer-nav"><a href="index.html">Dashboard</a> <span class="sep">&middot;</span> <a href="terms.html">Terms</a> <span class="sep">&middot;</span> <a href="privacy.html" aria-current="page">Privacy</a> <span class="sep">&middot;</span> </p>
+<p class="footer-note">X-Trust (Human Trust Layer) &middot; Dieng &mdash; HTL</p>
 </footer>
 </div>
 
@@ -185,7 +184,7 @@ Country: Côte d'Ivoire</p>
       <h3>A.4 Sub-processors</h3>
       <ul>
         <li><strong>Supabase Inc.</strong> — hosting &amp; database. Data Processing Addendum (DPA) in force: <a href="https://supabase.com/legal/dpa">supabase.com/legal/dpa</a>.</li>
-        <li><strong>Paddle.com Market Ltd.</strong> — payment processor of record. Handles all billing data.</li>
+        
         <li><strong>Resend</strong> — transactional email delivery only.</li>
       </ul>
 

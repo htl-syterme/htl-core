@@ -1,7 +1,7 @@
 /**
  * X-Trust · Human Trust Layer — client application.
  * Single deferred bundle: counter, sparkline, behavioural demo,
- * session persistence, presence decay, OSS footprint, Paddle checkout.
+ * session persistence, presence decay, OSS footprint.
  */
 (function xTrust() {
   'use strict';
@@ -32,7 +32,7 @@
   const SESSION_KEY = 'xtrust_session';
   const SESSION_SAVE_MS = 5000;
 
-  const PADDLE_CLIENT_TOKEN = 'live_2561f1b60b58e65cbfb855f79e8';
+  
 
   const OPEN_PR_COUNT = 9;
   const OPEN_PR_TARGETS =
@@ -515,41 +515,6 @@
   };
 
   /* ------------------------------------------------------------------ *
-   * Paddle checkout
-   * ------------------------------------------------------------------ */
-
-  const setupPaddleHandlers = () => {
-    if (!window.Paddle) {
-      console.warn('[X-Trust] Paddle SDK unavailable — checkout disabled.');
-      return;
-    }
-    window.Paddle.Initialize({ token: PADDLE_CLIENT_TOKEN });
-    document.querySelectorAll('[data-paddle-price]').forEach((el) => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        try {
-          window.Paddle.Checkout.open({
-            items: [{ priceId: el.dataset.paddlePrice, quantity: 1 }],
-          });
-        } catch (err) {
-          console.error('[X-Trust] unable to open Paddle checkout:', err);
-        }
-      });
-    });
-  };
-
-  /* ------------------------------------------------------------------ *
-   * Bootstrap
-   * ------------------------------------------------------------------ */
-
-  const init = () => {
-    setupSparkline();
-    setupCounter();
-    setupBehavioralDemo();
-    setupDemoSession();
-    setupPresenceDecay();
-    setupOpenSourceFootprint();
-    setupPaddleHandlers();
   };
 
   document.addEventListener('DOMContentLoaded', init);
