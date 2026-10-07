@@ -23,6 +23,11 @@ export function generateTrustToken(
   secret: string,
   ttlSeconds = 120
 ): string {
+  if (typeof window !== 'undefined' || typeof document !== 'undefined') {
+    throw new Error(
+      'HTL: generateTrustToken is server-only. Never expose HTL_SECRET to a browser.'
+    );
+  }
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ttlSeconds;
   const fullPayload: TrustPayload = { ...payload, iat, exp };
