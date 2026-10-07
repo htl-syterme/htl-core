@@ -100,3 +100,20 @@ test('attack: missing score field -> null', async () => {
   const bogus = 'v1.' + b64 + '.' + 'A'.repeat(43);
   assert.equal(await verifyTrustToken(bogus, SECRET), null);
 });
+
+// --- jti (nonce) ---
+test('jti: token contains a jti field', async () => {
+  const t = await generateTrustToken({ sub: 'u', score: 0.5 }, SECRET);
+  const parts = t.split('.');
+  const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+  assert.ok(typeof payload.jti === 'string');
+  assert.ok(payload.jti.length >= 16);
+});
+
+test('jti: two tokens have different jti', async () => {
+  const t1 = await generateTrustToken({ sub: 'u', score: 0.5 }, SECRET);
+  const t2 = await generateTrustToken({ sub: 'u', score: 0.5 }, SECRET);
+  const p1 = JSON.parse(Buffer.from(t1.split('.')[1], 'base64url').toString());
+  const p2 = JSON.parse(Buffer.from(t2.split('.')[1], 'base64url').toString());
+  assert.notEqual(p1.jti, p2.jti);
+});

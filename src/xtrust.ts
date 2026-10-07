@@ -6,6 +6,7 @@ export interface TrustPayload {
   iat: number;
   exp: number;
   kid: string;
+  jti?: string;
 }
 
 const ALGORITHM = 'sha256';
@@ -32,7 +33,8 @@ export function generateTrustToken(
   }
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + ttlSeconds;
-  const fullPayload: TrustPayload = { ...payload, iat, exp, kid };
+  const jti = crypto.randomBytes(16).toString('base64url');
+  const fullPayload: TrustPayload = { ...payload, iat, exp, kid, jti };
 
   const payloadB64 = b64urlEncode(JSON.stringify(fullPayload));
   const signature = crypto.createHmac(ALGORITHM, secret).update(payloadB64).digest('base64url');
