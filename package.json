@@ -1,12 +1,47 @@
 {
   "name": "@htl-syterme/htl-core",
   "version": "1.1.0",
+  "description": "Signed score of how human a session behaves. HTTP header, fail-open, zero-dependency. HMAC-SHA256 (v1) and Ed25519 (v2).",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "http",
+    "http-signature",
+    "signature",
+    "ed25519",
+    "hmac",
+    "rfc9421",
+    "web-bot-auth",
+    "agent",
+    "bot",
+    "trust",
+    "x-trust",
+    "htl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/htl-syterme/htl-core.git"
+  },
+  "homepage": "https://htl-syterme.github.io/htl-core",
+  "bugs": {
+    "url": "https://github.com/htl-syterme/htl-core/issues"
+  },
+  "author": "htl-syterme",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "tsc && node --test dist/test/xtrust.test.js"
-  },
-  "license": "MIT"
+    "test": "tsc && node --test dist/test/xtrust.test.js dist/test/attacks.test.js"
+  }
 }
