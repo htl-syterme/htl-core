@@ -42,6 +42,6 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "tsc && node --test dist/test/xtrust.test.js dist/test/attacks.test.js"
+    "test": "tsc && node --test dist/test/xtrust.test.js test/attacks.test.mjs"
   }
 }
