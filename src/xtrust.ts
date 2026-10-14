@@ -70,9 +70,6 @@ export function verifyTrustToken(token: string, secret: string, maxAgeSeconds = 
 }
 
 export function computeBehavioralScore(signals: Record<string, unknown>): number {
-  // Vrais signaux comportementaux : keystroke timing + touch entropy.
-  // Score 0..1 base sur la variance des intervalles (coefficient de variation).
-  // Un humain est irregulier (CV eleve), un bot est regulier (CV proche de 0).
   const toArr = (v: unknown): number[] => Array.isArray(v) ? v.filter(x => typeof x === 'number') : [];
   const keystrokes = toArr(signals.keystrokes);
   const touches = toArr(signals.touches);
@@ -99,4 +96,100 @@ export function computeBehavioralScore(signals: Record<string, unknown>): number
   const confidenceBonus = Math.min(0.2, totalSignals / 500);
 
   return Number(Math.min(1, score + confidenceBonus).toFixed(4));
+}
+
+// ---------------------------------------------------------------------------
+// Ed25519 (v2) - asymetric signatures. Migration path from HMAC (v1).
+// Uses Web Crypto, available on Node 18+, Deno, Bun, Cloudflare Workers,
+// and browser.
+// ---------------------------------------------------------------------------
+
+const VERSION_V2 = 'v2';
+const ED25519_ALG = { name: 'Ed25519' } as const;
+
+function bytesToB64url(bytes: Uint8Array): string {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function b64urlToBytes(s: string): Uint8Array {
+  const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
+  const b64 = s.replace(/-/g, '+').replace(/_/g, '/') + pad;
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+export interface Ed25519KeyPair {
+  publicKeyHex: string;
+  privateKeyJwk: JsonWebKey;
+  publicKeyJwk: JsonWebKey;
+}
+
+export async function generateEd25519KeyPair(): Promise<Ed25519KeyPair> {
+  const pair = (await crypto.subtle.generateKey(ED25519_ALG, true, ['sign', 'verify'])) as CryptoKeyPair;
+  const privateKeyJwk = await crypto.subtle.exportKey('jwk', pair.privateKey);
+  const publicKeyJwk = await crypto.subtle.exportKey('jwk', pair.publicKey);
+  const rawPub = await crypto.subtle.exportKey('raw', pair.publicKey);
+  const publicKeyHex = Array.from(new Uint8Array(rawPub))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return { publicKeyHex, privateKeyJwk, publicKeyJwk };
+}
+
+export async function generateTrustTokenEd25519(
+  payload: Omit<TrustPayload, 'iat' | 'exp' | 'kid'>,
+  privateKeyJwk: JsonWebKey,
+  ttlSeconds = 120,
+  kid = 'v2'
+): Promise<string> {
+  const iat = Math.floor(Date.now() / 1000);
+  const exp = iat + ttlSeconds;
+  const jtiBytes = new Uint8Array(16);
+  crypto.getRandomValues(jtiBytes);
+  const jti = bytesToB64url(jtiBytes);
+  const fullPayload: TrustPayload = { ...payload, iat, exp, kid, jti };
+
+  const payloadB64 = bytesToB64url(new TextEncoder().encode(JSON.stringify(fullPayload)));
+  const key = await crypto.subtle.importKey('jwk', privateKeyJwk, ED25519_ALG, false, ['sign']);
+  const sigBuf = await crypto.subtle.sign(ED25519_ALG, key, new TextEncoder().encode(payloadB64));
+  const sigB64 = bytesToB64url(new Uint8Array(sigBuf));
+
+  return `${VERSION_V2}.${payloadB64}.${sigB64}`;
+}
+
+export async function verifyTrustTokenEd25519(
+  token: string,
+  publicKeyJwk: JsonWebKey,
+  maxAgeSeconds = 120
+): Promise<TrustPayload | null> {
+  const parts = token.split('.');
+  if (parts.length !== 3 || parts[0] !== VERSION_V2) return null;
+
+  const [, payloadB64, sigB64] = parts;
+
+  try {
+    const key = await crypto.subtle.importKey('jwk', publicKeyJwk, ED25519_ALG, false, ['verify']);
+    const sigBytes = b64urlToBytes(sigB64);
+    const ok = await crypto.subtle.verify(
+      ED25519_ALG,
+      key,
+      sigBytes as unknown as ArrayBuffer,
+      new TextEncoder().encode(payloadB64) as unknown as ArrayBuffer
+    );
+    if (!ok) return null;
+
+    const payload: TrustPayload = JSON.parse(b64urlDecode(payloadB64));
+    const now = Math.floor(Date.now() / 1000);
+
+    if (now > payload.exp) return null;
+    if (now - payload.iat > maxAgeSeconds) return null;
+    if (payload.score < 0 || payload.score > 1) return null;
+
+    return payload;
+  } catch {
+    return null;
+  }
 }
