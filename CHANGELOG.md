@@ -1,3 +1,19 @@
+## [1.2.0] - 2026-10-16
+
+### Added
+- Ed25519 v2 signature path (generateEd25519KeyPair, generateTrustTokenEd25519, verifyTrustTokenEd25519).
+- Portable env helper `getEnv()` (Node, Deno, Bun, Cloudflare Workers via HTL_ENV).
+- 7 new Ed25519 tests.
+
+### Fixed
+- P0: process.env direct access in fetch.ts broke SDK on non-Node runtimes.
+  Replaced by portable getEnv().
+
+### Notes
+- v1 HMAC path remains Node-only (uses node:crypto).
+  See SECURITY.md for runtime compatibility.
+- Both v1 and v2 coexist. v2 is recommended for new integrations.
+
 # Changelog
 
 All notable changes to HTL / X-Trust are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions use [Semantic Versioning](https://semver.org/).
