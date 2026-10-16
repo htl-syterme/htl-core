@@ -80,3 +80,18 @@ No date announced. v1 is stable and shipped.
 ### Detection
 
 We log every verification attempt. Anomalies (score distributions, replay attempts, forged signatures) feed into `security_events` and are reviewed weekly.
+
+
+## Runtime compatibility note (v1 HMAC)
+
+The v1 HMAC path uses `node:crypto` (`createHmac`, `timingSafeEqual`,
+`randomBytes`). As of v1.1.0 it does **not** run on Deno, Bun, Cloudflare
+Workers, or the browser.
+
+The v2 Ed25519 path uses Web Crypto (`crypto.subtle`) and is fully
+portable across all supported runtimes.
+
+Recommendation: use v2 for any new integration. v1 is Node-only.
+
+Porting v1 to Web Crypto (HMAC via `crypto.subtle.importKey` with
+`{ name: 'HMAC', hash: 'SHA-256' }`) is tracked but not yet done.
