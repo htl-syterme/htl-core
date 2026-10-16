@@ -43,5 +43,9 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc && node --test dist/test/xtrust.test.js test/attacks.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }
