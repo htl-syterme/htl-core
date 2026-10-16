@@ -42,7 +42,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "tsc && node --test dist/test/xtrust.test.js test/attacks.test.mjs"
+    "test": "tsc && node --test test/xtrust.test.mjs test/attacks.test.mjs test/ed25519.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
