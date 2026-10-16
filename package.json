@@ -1,6 +1,6 @@
 {
   "name": "@htl-syterme/htl-core",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Signed score of how human a session behaves. HTTP header, fail-open, zero-dependency. HMAC-SHA256 (v1) and Ed25519 (v2).",
   "type": "module",
   "main": "dist/src/index.js",
