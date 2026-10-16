@@ -1,4 +1,5 @@
 import { verifyTrustToken, TrustPayload } from './xtrust.js';
+import { getEnv } from './env.js';
 
 export const TRUST_HEADER = 'x-trust';
 
@@ -15,12 +16,12 @@ export interface MinimalResponse {
 export type NextFunction = (err?: unknown) => void;
 
 function readSecret(): string {
-  const secret = process.env.HTL_SECRET;
-  if (!secret) throw new Error('HTL_SECRET manquant (process.env)');
+  const secret = getEnv('HTL_SECRET');
+  if (!secret) throw new Error('HTL_SECRET manquant (getEnv)');
   return secret;
 }
 
-export function trustMiddleware() {
+export function trustMiddleware(): (req: TrustRequest, _res: unknown, next: NextFunction) => void {
   return (req: TrustRequest, _res: unknown, next: NextFunction): void => {
     try {
       const raw = req.headers[TRUST_HEADER];
@@ -33,7 +34,7 @@ export function trustMiddleware() {
   };
 }
 
-export function requireTrust(threshold = 0.5) {
+export function requireTrust(threshold = 0.5): (req: TrustRequest, res: MinimalResponse, next: NextFunction) => void {
   return (req: TrustRequest, res: MinimalResponse, next: NextFunction): void => {
     const score = req.trust?.score ?? 0;
     if (!req.trust || score < threshold) {
