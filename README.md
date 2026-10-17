@@ -98,7 +98,7 @@ deno add jsr:@htl-syterme/htl-core
 ### Client-side
 
     import { trustFetch } from "@htl-syterme/htl-core";
-    const fetch = trustFetch(process.env.HTL_SECRET);
+    const fetch = trustFetch(getEnv("HTL_SECRET"));
     await fetch("https://your-ai-api.com/chat", {
       method: "POST",
       body: JSON.stringify({ prompt: "Hello" })
@@ -108,7 +108,7 @@ deno add jsr:@htl-syterme/htl-core
 
     import { requireTrust } from "@htl-syterme/htl-core";
     app.post("/chat", async (req, res) => {
-      const { trusted, score } = await requireTrust(req, process.env.HTL_SECRET);
+      const { trusted, score } = await requireTrust(req, getEnv("HTL_SECRET"));
       const response = await callLLM(req.body.prompt);
       res.json({ response, human_signal: trusted });
     });
@@ -116,7 +116,7 @@ deno add jsr:@htl-syterme/htl-core
 ### Middleware
 
     import { trustMiddleware } from "@htl-syterme/htl-core";
-    app.use(trustMiddleware({ secret: process.env.HTL_SECRET, minScore: 0.5 }));
+    app.use(trustMiddleware({ secret: getEnv("HTL_SECRET"), minScore: 0.5 }));
 
 ---
 
@@ -143,7 +143,7 @@ Returns total live verifications. No API key needed.
 
 We are selecting 5 AI infrastructure startups to integrate X-Trust before public scale.
 
-You get: 30 days free (100k verifications) + direct founder support.
+You get: 30 days free (50k verifications) + direct founder support.
 We get: Your honest feedback + 1 testimonial.
 
 Open an issue or DM @htl_syterme on X.
