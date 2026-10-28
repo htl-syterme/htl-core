@@ -107,3 +107,20 @@ Encoding: base64url without padding (RFC 4648 section 5).
 - token: `v1.eyJleHAiOjE3MDAwMDAxMjAsImlhdCI6MTcwMDAwMDAwMCwic2NvcmUiOjUuMCwic3ViIjoic3BlYy11c2VyLTEifQ.cT7fg5g5MkCNIaqsL9gN0GR80v8f3b_1KDUFG8KMC1s`
 - expected: verify returns null
 
+
+### Extended Test Vectors (added in V21 verification)
+
+**Vector 5 - valid v2 (Ed25519) token**
+Verifies the Ed25519 signature using the provided JWKS `kid`.
+Input: Token starting with `v2.`, valid `kid`, valid signature.
+Expected: Verification returns `true` and the correct payload.
+
+**Vector 6 - invalid v2 (Ed25519) signature**
+Verifies that a tampered payload or signature fails.
+Input: Token starting with `v2.`, tampered payload/signature.
+Expected: Verification returns `null` or throws a catchable error (fail-open).
+
+**Vector 7 - jti anti-replay enforcement**
+Verifies that a token with a previously seen `jti` is rejected or handled atomically by the backend.
+Input: Two identical tokens with the same `jti` sent in quick succession.
+Expected: Backend `nonce_cache` upsert prevents duplicate processing (ignoreDuplicates).
