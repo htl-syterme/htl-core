@@ -1,11 +1,11 @@
-"""htl-sign: Generate X-Trust signed human-presence headers. Standard library only."""
+"""htl_sign: Generate X-Trust signed human-presence headers. Standard library only."""
 
 import base64
 import hashlib
 import hmac
 import json
 import time
-from typing import Any
+from typing import Any, Optional
 
 VERSION = "v1"
 
@@ -42,9 +42,23 @@ def generate_trust_token(
     return f"{VERSION}.{payload_b64}.{sig_b64}"
 
 
-def build_x_trust_header(secret: str, sub: str = "client", score: float = 0.8) -> dict[str, str]:
-    """Return a dict ready to merge into HTTP headers."""
-    return {"X-Trust": generate_trust_token(secret, sub=sub, score=score)}
+def build_signed_headers(
+    secret: str, 
+    sub: str = "client", 
+    score: float = 0.8,
+    agent_url: Optional[str] = None
+) -> dict[str, str]:
+    """
+    Return a dict ready to merge into HTTP headers.
+    Includes X-Trust and, if provided, Signature-Agent (IETF draft -01).
+    """
+    headers = {
+        "X-Trust": generate_trust_token(secret, sub=sub, score=score)
+    }
+    if agent_url:
+        headers["Signature-Agent"] = agent_url
+        
+    return headers
 
 
-__all__ = ["generate_trust_token", "build_x_trust_header", "VERSION"]
+__all__ = ["generate_trust_token", "build_signed_headers", "VERSION"]

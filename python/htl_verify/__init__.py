@@ -65,3 +65,23 @@ def verify(
         raise Untrusted("stale")
 
     return claims
+
+def verify_fail_open(
+    header: str,
+    key: bytes,
+    *,
+    now: float | None = None,
+    max_age: int = 120
+) -> dict[str, Any] | None:
+    """
+    Fail-open version of verify().
+    Returns the claims if valid, or None if anything fails.
+    Never raises an exception (Doctrine AIR).
+    """
+    try:
+        return verify(header, key, now=now, max_age=max_age)
+    except Untrusted:
+        return None
+    except Exception:
+        # Catch-all for any unexpected error (e.g., bad JSON, bad base64)
+        return None
